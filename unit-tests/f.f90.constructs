@@ -1,0 +1,36 @@
+PROGRAM foo
+   USE PARAMS
+   implicit none
+   INTEGER :: i,j,k
+   INTEGER :: Order,D,nsnap
+   DOUBLE PRECISION,ALLOCATABLE :: F(:,:), x(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: R(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: theta(:)
+   DOUBLE PRECISION,ALLOCATABLE :: DR(:,:,:)
+   
+   nsnap = 2
+   Order = 2
+   D = 2
+
+   ALLOCATE(R(nsnap,nsnap), theta(D))
+   ALLOCATE(F(nsnap,1+Order*D))
+   ALLOCATE(x(nsnap,nsnap))
+   ALLOCATE(DR(nsnap,nsnap,D))
+
+   x(1,1) = 1
+   x(1,2) = 1
+   x(2,1) = 2
+   x(2,2) = 2
+   theta(1) = 1
+   theta(2) = 2
+
+   call construct_R(R,theta,x,D,nsnap,Pc)
+   call construct_DR(DR,R,x,D,nsnap)
+   DO i=1,nsnap
+   DO j=1,nsnap
+   DO k=1,D
+      write(*,*) DR(i,j,k)
+   END DO
+   END DO
+   END DO
+END PROGRAM 
