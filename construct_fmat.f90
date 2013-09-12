@@ -19,8 +19,8 @@ SUBROUTINE construct_fmat(F,snap_pos,Order,D,nsnap)
    IMPLICIT NONE
    INTEGER :: Order, D, nsnap
    INTEGER :: nn
-   REAL :: F(nsnap,1 + Order*D)
-   REAL :: snap_pos(nsnap,D)
+   DOUBLE PRECISION :: F(nsnap,1 + Order*D)
+   DOUBLE PRECISION :: snap_pos(nsnap,D)
    DO nn=1,nsnap
       call construct_f(F(nn,:),snap_pos(nn,:),Order,D,nsnap)
    END DO

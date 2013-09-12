@@ -8,13 +8,13 @@
 !
 ! outputs: 
 ! 	r(x,y);	 
-REAL FUNCTION rxy(theta,x,y,D,Pc)
+DOUBLE PRECISION FUNCTION rxy(theta,x,y,D,Pc)
    IMPLICIT NONE
    INTEGER :: D, Pc
-   REAL :: r
-   REAL :: theta(D), x(D), y(D)
+   DOUBLE PRECISION :: r
+   DOUBLE PRECISION :: theta(D), x(D), y(D)
    INTEGER :: dd
-   REAL :: tmp
+   DOUBLE PRECISION :: tmp
    tmp = 0
    DO dd=1,D
       tmp = tmp & 

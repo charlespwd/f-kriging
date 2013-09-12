@@ -11,8 +11,8 @@ SUBROUTINE construct_f(f,x,Order,D,nsnap)
    IMPLICIT NONE
    INTEGER :: Order, D, nsnap
    INTEGER :: oo,dd,i
-   REAL :: f(1 + Order*D)
-   REAL :: x(D)
+   DOUBLE PRECISION :: f(1 + Order*D)
+   DOUBLE PRECISION :: x(D)
    i = 2;
    f(1) = 1;
    DO oo=1,Order
