@@ -1,4 +1,4 @@
-CONSTRUCT=construct_f.o construct_fmat.o construct_R.o construct_DR.o
+CONSTRUCT=construct_beta.o construct_f.o construct_fmat.o construct_R.o construct_DR.o
 FUNCTIONS=rxy.o invertr.o eye.o rescale.o
 MODULE=params.o
 TEST=dump.o

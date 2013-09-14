@@ -14,7 +14,7 @@ SUBROUTINE construct_f(f,x,Order,D,Ns)
    DOUBLE PRECISION :: f(1 + Order*D)
    DOUBLE PRECISION :: x(D)
    i = 2;
-   f(1) = 1;
+   f(1) = 1.0D0;
    DO oo=1,Order
       DO dd=1,D
          f(i) = x(dd) ** oo
