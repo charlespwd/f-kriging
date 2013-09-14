@@ -20,14 +20,15 @@ SUBROUTINE optimize_theta_mle(theta,X,Y,D,Ns)
    DOUBLE PRECISION, INTENT(IN) :: X(Ns,Ns), Y(Ns,1)
    DOUBLE PRECISION, INTENT(INOUT) :: theta(D)
 
-   ! Function
-   DOUBLE PRECISION :: trace
+   ! Functions
+   DOUBLE PRECISION :: trace, get_sigma2
 
    ! Work variables
    DOUBLE PRECISION :: F(Ns,1+D*ORDER) ! Regression Matrix
    DOUBLE PRECISION :: R(Ns,Ns), DR(Ns,Ns,D) ! Correlation and derivative
    DOUBLE PRECISION :: Rinv(Ns,Ns), RinvDRij(Ns,Ns) 
    DOUBLE PRECISION :: Rinv_DR(Ns,Ns,D) ! Rinv * R
+   DOUBLE PRECISION :: YmFb(Ns,1) ! Y-F*beta
    DOUBLE PRECISION :: beta(1+Order*D,1) 
    DOUBLE PRECISION :: delta(D,1) ! stores del ln / del theta_old
    DOUBLE PRECISION :: trace_RDR(D,1) ! the trace of (Rinv*R)
@@ -37,7 +38,9 @@ SUBROUTINE optimize_theta_mle(theta,X,Y,D,Ns)
    DOUBLE PRECISION :: sigma2 ! sigma^2 <BS>
    DOUBLE PRECISION :: RCOND ! condition # reciprocal
    INTEGER :: ii,jj,dd,kk
-   INTEGER :: INFO
+   INTEGER :: INFO,fdim
+
+   fdim = 1+Order*D
    
    ! make identity matrices
    call eye(I,ns)
@@ -49,9 +52,13 @@ SUBROUTINE optimize_theta_mle(theta,X,Y,D,Ns)
       call construct_DR(DR,R,X,D,Ns)
       call invertR(R,I,Rinv,Ns)
       call construct_beta(beta,F,Rinv,Y,Order,D,Ns)
-      
-      call dumpmat(beta,1+Order*D,1)
 
+      YmFb = Y
+      ! YmFb = Y-F*beta
+      call DGEMM('n','n',ns,1,fdim,(-1.0d0),F,Ns,beta,fdim,1.0d0,YmFb,Ns)
+
+      sigma2 = get_sigma2(YmFb,Rinv,Order,D,Ns)
+      print *, 'sigma2 = ', sigma2
       ! ------------------------------------------------
       ! Maximum likelihood as per Lappo
       ! Intention : theta_new = theta_old + Binv * delta
@@ -81,8 +88,9 @@ SUBROUTINE optimize_theta_mle(theta,X,Y,D,Ns)
       call LA_GESV(B,Binv) 
       ! careful if you use B, it's no longer the same matrix. 
       
-      call dumpmat(Binv,D,D)  
-!      DO dd=1,D
-!         delta(dd,1) = -0.5d0 * trace_RDR(dd,1) 
+      !DO dd=1,D
+         !delta(1,d) = -0.5*(trace_RDR(d) - (1.0 / sigma2) *...
+			!	((Y-F*beta)'*Rinv_DR(:,:,d)*Rinv*(Y-F*beta)));
+
 
 END SUBROUTINE
