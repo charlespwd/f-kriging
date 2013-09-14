@@ -58,7 +58,6 @@ SUBROUTINE optimize_theta_mle(theta,X,Y,D,Ns)
       call DGEMM('n','n',ns,1,fdim,(-1.0d0),F,Ns,beta,fdim,1.0d0,YmFb,Ns)
 
       sigma2 = get_sigma2(YmFb,Rinv,Order,D,Ns)
-      print *, 'sigma2 = ', sigma2
       ! ------------------------------------------------
       ! Maximum likelihood as per Lappo
       ! Intention : theta_new = theta_old + Binv * delta
@@ -77,14 +76,12 @@ SUBROUTINE optimize_theta_mle(theta,X,Y,D,Ns)
          B(ii,jj) = 0.5d0 * trace(RinvDRij,Ns)
       END DO
       END DO
-      call dumpmat(B,D,D)
       
       Binv = ID! to prevent overwrite on LAPACK routine, although we don't really
                ! need it, it's more for readability. If you don't have room for a
                ! 2x2 matrix, you have a serious RAM problem...     
      
       ! Binv = B\ID
-      print *, 'bb' 
       call LA_GESV(B,Binv) 
       ! careful if you use B, it's no longer the same matrix. 
       

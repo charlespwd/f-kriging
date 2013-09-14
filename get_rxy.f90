@@ -8,7 +8,7 @@
 !
 ! outputs: 
 ! 	r(x,y);	 
-DOUBLE PRECISION FUNCTION rxy(theta,x,y,D,Pc)
+DOUBLE PRECISION FUNCTION get_rxy(theta,x,y,D,Pc)
    IMPLICIT NONE
    INTEGER :: D, Pc
    DOUBLE PRECISION :: r
@@ -20,7 +20,7 @@ DOUBLE PRECISION FUNCTION rxy(theta,x,y,D,Pc)
       tmp = tmp & 
          - theta(dd) * (abs(x(dd) - y(dd)) ** Pc)
    END DO
-   rxy = exp(tmp)
+   get_rxy = exp(tmp)
    RETURN
 END FUNCTION
       
