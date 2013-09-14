@@ -5,21 +5,21 @@
 !	R: the correlation matrix;
 ! 	snap_pos: the snapshot positions;
 !  D: dimension of domain
-!  nsnap: # of snapshots
+!  Ns: # of snapshots
 !
 ! outputs: 
 ! 	DR(x,y,d);	 
-SUBROUTINE construct_DR(DR,R,snap_pos,D,nsnap)
+SUBROUTINE construct_DR(DR,R,snap_pos,D,Ns)
    USE PARAMS
    IMPLICIT NONE
-   INTEGER, INTENT(IN) :: nsnap, D
-   DOUBLE PRECISION, INTENT(OUT) :: DR(nsnap,nsnap,D)
-   DOUBLE PRECISION, INTENT(IN) :: R(nsnap,nsnap)
-   DOUBLE PRECISION, INTENT(IN) :: snap_pos(nsnap,D)
+   INTEGER, INTENT(IN) :: Ns, D
+   DOUBLE PRECISION, INTENT(OUT) :: DR(Ns,Ns,D)
+   DOUBLE PRECISION, INTENT(IN) :: R(Ns,Ns)
+   DOUBLE PRECISION, INTENT(IN) :: snap_pos(Ns,D)
    INTEGER :: ii, jj, kk
    
-   DO ii=1,nsnap
-      DO jj=ii,nsnap
+   DO ii=1,Ns
+      DO jj=ii,Ns
          DO kk=1,D
             DR(ii,jj,kk) = 0 - R(ii,jj) * ((abs(snap_pos(jj,kk) - snap_pos(ii,kk))) ** Pc)
             DR(jj,ii,kk) = DR(ii,jj,kk)

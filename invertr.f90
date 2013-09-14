@@ -5,18 +5,18 @@
 ! 
 ! ARGUMENTS:
 !  R (inout) : the correlation matrix, gets modified if nuggetcorrected.
-!  I (in) : NSxNS, the identity matrix
+!  I (in) : NsxNs, the identity matrix
 !  Rinv (out) : the inverse of the correlation matrix, ns x ns
-!  NS : number of snapshots, i.e. dimension of matrix;
-SUBROUTINE invertR(R,I,Rinv,NS)
+!  Ns : number of snapshots, i.e. dimension of matrix;
+SUBROUTINE invertR(R,I,Rinv,Ns)
    USE LA_PRECISION,ONLY:WP=>DP
    USE F95_LAPACK,ONLY:LA_GESVX
    IMPLICIT NONE 
-   INTEGER, INTENT(IN) :: NS
-   DOUBLE PRECISION, INTENT(IN) :: I(NS,NS)
-   DOUBLE PRECISION, INTENT(INOUT) :: R(NS,NS)
-   DOUBLE PRECISION, INTENT(OUT) :: Rinv(NS,NS)
-   DOUBLE PRECISION :: wR(NS,NS), wI(NS,NS)
+   INTEGER, INTENT(IN) :: Ns
+   DOUBLE PRECISION, INTENT(IN) :: I(Ns,Ns)
+   DOUBLE PRECISION, INTENT(INOUT) :: R(Ns,Ns)
+   DOUBLE PRECISION, INTENT(OUT) :: Rinv(Ns,Ns)
+   DOUBLE PRECISION :: wR(Ns,Ns), wI(Ns,Ns)
    DOUBLE PRECISION :: RCOND
    INTEGER :: INFO
 
@@ -24,22 +24,22 @@ SUBROUTINE invertR(R,I,Rinv,NS)
    wI = I
 
    CALL LA_GESVX(wR,wI,Rinv,RCOND=RCOND,INFO=INFO)
-   CALL NUGGETCORRECT(R,I,Rinv,NS,RCOND ** (-1))
+   CALL NUGGETCORRECT(R,I,Rinv,Ns,RCOND ** (-1))
 END SUBROUTINE
 
 !! 
 ! nugget correct, this function is CALLed by inverse R
 ! When a matrix is close to singular, a small epsilon is added to the 
 ! diagonal of the correlation matrix to permit it to solve
-SUBROUTINE nuggetcorrect(R,I,Rinv,NS,cond)
+SUBROUTINE nuggetcorrect(R,I,Rinv,Ns,cond)
    USE PARAMS,ONLY:NUGGET,CONDTOL
    USE LA_PRECISION,ONLY:WP=>DP
    USE F95_LAPACK,ONLY:LA_GESVX
    IMPLICIT NONE
-   INTEGER,INTENT(IN) :: NS
-   DOUBLE PRECISION,INTENT(inout) :: Rinv(NS,NS), R(NS,NS) 
-   DOUBLE PRECISION,INTENT(in) :: I(NS,NS) 
-   DOUBLE PRECISION :: wI(NS,NS),wR(NS,NS)
+   INTEGER,INTENT(IN) :: Ns
+   DOUBLE PRECISION,INTENT(inout) :: Rinv(Ns,Ns), R(Ns,Ns) 
+   DOUBLE PRECISION,INTENT(in) :: I(Ns,Ns) 
+   DOUBLE PRECISION :: wI(Ns,Ns),wR(Ns,Ns)
    INTEGER :: ii,info
    DOUBLE PRECISION :: eps, cond,rcon
 
@@ -49,8 +49,8 @@ SUBROUTINE nuggetcorrect(R,I,Rinv,NS,cond)
 !   cond = rcon ** (-1) 
    IF (cond > condtol) THEN 
       WRITE(*,'(a25,E11.5)') 'applying nugget to cond= ',cond
-      eps = (10 + NS) * 10D0 ** (-NUGGET) 
-      DO ii=1,NS
+      eps = (10 + Ns) * 10D0 ** (-NUGGET) 
+      DO ii=1,Ns
         R(ii,ii) = R(ii,ii) + eps
       END DO
 

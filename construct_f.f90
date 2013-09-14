@@ -7,9 +7,9 @@
 !
 ! output:
 !  f(x): [1, x_1^1, ...]
-SUBROUTINE construct_f(f,x,Order,D,nsnap)
+SUBROUTINE construct_f(f,x,Order,D,Ns)
    IMPLICIT NONE
-   INTEGER :: Order, D, nsnap
+   INTEGER :: Order, D, Ns
    INTEGER :: oo,dd,i
    DOUBLE PRECISION :: f(1 + Order*D)
    DOUBLE PRECISION :: x(D)
