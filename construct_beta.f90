@@ -16,24 +16,19 @@ SUBROUTINE construct_beta(beta,F,Rinv,Y,ORDER,D,Ns)
    
    Fdim = 1+Order*D
    
-   print *, 'bc1'
    ! from BLAS
    ! F' * Rinv, [Ns * Fdim] ** T x [Ns x Ns] = [Fdim x Ns]
    CALL DGEMM('T','N',Fdim,Ns,Ns,1.0D0,F,Ns,Rinv,Ns,0.0D0,FTRinv,Fdim)
 
-   print *, 'bc2'
    ! LHS = F'*Rinv*F, [Fdim x Ns] * [Ns x Fdim] = [Fdim x Fdim]
    CALL DGEMM('N','N',Fdim,Fdim,Ns,1.0D0,FTRinv,Fdim,F,Ns,0.0D0,LHS,Fdim)
 
-   print *, 'bc3'
    ! RHS = F'*Rinv * Y, [Fdim x Ns]*[Ns x 1] = [Fdim x 1]
    CALL DGEMM('N','N',Fdim,1,Ns,1.0D0,FTRinv,Fdim,Y,Ns,0.0D0,RHS,Fdim)
 
-   print *, 'bc4'
    ! LHS \ RHS
    CALL LA_GESV(LHS,RHS)
    beta = RHS
    
-   print *, 'bc5'
    !beta = RHS
 END SUBROUTINE

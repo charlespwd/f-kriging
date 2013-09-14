@@ -3,7 +3,7 @@ MODULE PARAMS
    DOUBLE PRECISION, PARAMETER :: CONDTOL = 1D15 
    INTEGER, PARAMETER :: MAXCOUNT = 400 ! Max iteration of MLE
    INTEGER, PARAMETER :: NUGGET = 10 ! Power of the eps added to the diagonal
-   INTEGER, PARAMETER :: ORDER = 2 ! order of the regression 
+   INTEGER, PARAMETER :: ORDER = 0 ! order of the regression 
    INTEGER, PARAMETER :: Pc = 2    ! power of the correlation (2=gaussian)
 END MODULE
 

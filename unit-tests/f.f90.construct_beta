@@ -1,0 +1,50 @@
+PROGRAM foo
+   USE PARAMS
+   USE LA_PRECISION,ONLY:WP=>DP
+   USE F95_LAPACK,ONLY:LA_GESV,LA_GESVX
+   implicit none
+   INTEGER :: ii,jj,kk,info
+   INTEGER :: D,Ns
+   DOUBLE PRECISION,ALLOCATABLE :: F(:,:), x(:,:), y(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: R(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: theta(:)
+   DOUBLE PRECISION,ALLOCATABLE :: DR(:,:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: I(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: Rinv(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: beta(:,:)
+   
+   Ns = 2
+   D = 2
+
+   print *, 'check 0'
+
+   ALLOCATE(R(Ns,Ns), theta(D))
+   ALLOCATE(F(Ns,1+Order*D))
+   ALLOCATE(x(Ns,Ns))
+   ALLOCATE(DR(Ns,Ns,D))
+   ALLOCATE(Rinv(Ns,Ns))
+   ALLOCATE(I(Ns,Ns))
+   ALLOCATE(beta(1+Order*D,1)) 
+   ALLOCATE(y(Ns,1))
+
+   x(1,1) = 1
+   x(1,2) = 0
+   x(2,1) = 0
+   x(2,2) = 1
+   y(1,1) = 5
+   y(2,1) = 98
+   theta(1) = 1
+   theta(2) = 1
+   call eye(I,Ns)
+
+   call construct_fmat(F,X,Order,D,Ns)
+   call construct_R(R,theta,x,D,Ns,Pc)
+   call dumpmat(R,ns,ns)
+   call invertR(R,I,Rinv,Ns)
+   call dumpmat(Rinv,ns,ns)
+   call dumpmat(Y,ns,1)
+   call construct_beta(beta,F,Rinv,Y,ORder,D,Ns)
+
+   call dumpmat(beta,1+order*D,1) 
+
+END PROGRAM 

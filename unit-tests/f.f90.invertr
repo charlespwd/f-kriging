@@ -1,0 +1,55 @@
+PROGRAM foo
+   USE PARAMS
+   USE LA_PRECISION,ONLY:WP=>DP
+   USE F95_LAPACK,ONLY:LA_GESV,LA_GESVX
+   implicit none
+   INTEGER :: ii,jj,kk,info
+   INTEGER :: Order,D,nsnap
+   DOUBLE PRECISION,ALLOCATABLE :: F(:,:), x(:,:), y(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: R(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: theta(:)
+   DOUBLE PRECISION,ALLOCATABLE :: DR(:,:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: I(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: Rinv(:,:)
+   
+   DOUBLE PRECISION :: a(2,2)
+   DOUBLE PRECISION :: xx(2,1)
+   DOUBLE PRECISION :: b(2,1),cond
+
+   a(:,1) = (/0,1/)
+   a(:,2) = (/1,0/)
+   b(1,1) = 1
+   b(2,1) = 2
+   xx = b
+
+   nsnap = 2
+   Order = 2
+   D = 2
+
+   ALLOCATE(R(nsnap,nsnap), theta(D))
+   ALLOCATE(F(nsnap,1+Order*D))
+   ALLOCATE(x(nsnap,nsnap))
+   ALLOCATE(DR(nsnap,nsnap,D))
+   ALLOCATE(Rinv(nsnap,nsnap))
+   ALLOCATE(I(nsnap,nsnap))
+
+   x(1,1) = 1
+   x(1,2) = 1
+   x(2,1) = 1
+   x(2,2) = 1.000000000000001D0
+   theta(1) = 1
+   theta(2) = 2
+   call eye(I,nsnap)
+
+   call construct_R(R,theta,x,D,nsnap,Pc)
+!   call dumpmat(x,2,2)
+   y = x
+!   call dumpmat(y,2,2)
+!   call LA_GESVX(x,I,Rinv,RCOND=cond,INFO=info)
+!   call dumpmat(x,2,2)
+   call dumpmat(Rinv,2,2)
+   call invertR(R,I,Rinv,nsnap)
+   call dumpmat(Rinv,2,2)
+
+
+END PROGRAM 

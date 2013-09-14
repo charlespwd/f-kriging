@@ -1,0 +1,53 @@
+PROGRAM foo
+   USE PARAMS
+   USE LA_PRECISION,ONLY:WP=>DP
+   USE F95_LAPACK,ONLY:LA_GESV,LA_GESVX
+   implicit none
+   INTEGER :: ii,jj,kk,info
+   INTEGER :: D,Ns
+   DOUBLE PRECISION,ALLOCATABLE :: F(:,:), x(:,:), y(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: R(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: theta(:)
+   DOUBLE PRECISION,ALLOCATABLE :: DR(:,:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: I(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: Rinv(:,:)
+   DOUBLE PRECISION,ALLOCATABLE :: beta(:,:)
+   
+   Ns = 5
+   D = 2
+
+   ALLOCATE(R(Ns,Ns), theta(D))
+   ALLOCATE(F(Ns,1+Order*D))
+   ALLOCATE(x(Ns,Ns))
+   ALLOCATE(DR(Ns,Ns,D))
+   ALLOCATE(Rinv(Ns,Ns))
+   ALLOCATE(I(Ns,Ns))
+   ALLOCATE(beta(1+Order*D,1)) 
+   ALLOCATE(y(Ns,1))
+
+   X(:,1) = (/0d0,-5.0d0,-5.0d0,5.0d0,5.0d0/)
+   X(:,2) = (/7.5d0,0.0d0,15.0d0,0.0d0,15.0d0/)
+   y(:,1) = &
+   (/ 0.218521126422703d2, &
+      3.081290960116066d2, &
+      0.175082995157782d2, &
+      0.143413982955089d2, &
+      2.011854310753664d2/)
+   theta(1) = 0.160943791243410d0
+   theta(2) = 0.107295860828940d0
+   call eye(I,Ns)
+
+!   call construct_fmat(F,X,Order,D,Ns)
+!   call construct_R(R,theta,x,D,Ns,Pc)
+!   call dumpmat(R,ns,ns)
+!   call invertR(R,I,Rinv,Ns)
+!   call dumpmat(Rinv,ns,ns)
+!   call dumpmat(Y,ns,1)
+!   call construct_beta(beta,F,Rinv,Y,ORder,D,Ns)
+
+!   call dumpmat(beta,1+order*D,1) 
+   print * , '--------------------------'
+   call optimize_theta_mle(theta,x,y,d,ns)
+
+
+END PROGRAM 
