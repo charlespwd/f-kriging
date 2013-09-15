@@ -1,4 +1,4 @@
-ROUTINES=optimize_theta_mle.o
+ROUTINES=optimize_theta_mle.o kriging.o
 CONSTRUCT=construct_beta.o construct_delta.o construct_f.o construct_fmat.o construct_R.o construct_DR.o
 FUNCTIONS=get_rxy.o invertr.o eye.o rescale.o trace.o get_sigma2.o init_theta.o
 MODULE=params.o

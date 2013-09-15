@@ -9,7 +9,7 @@
 !  Xmax (in) : array of maximums per column of X (i.e. per dimension)
 !  Xmin (in) : array of min per column of X (i.e. per dimension)
 !  Xout (out), optional : if present, x isn't overwritten, the scaled
-SUBROUTINE rescale(X, D, Ns, XMAX, XMIN)
+SUBROUTINE rescale(X, D, Ns, XMIN, XMAX)
    INTEGER, INTENT(IN) :: Ns, D
    DOUBLE PRECISION, INTENT(IN) :: XMAX(D), XMIN(D)
    DOUBLE PRECISION, INTENT(INOUT) :: X(Ns,D)
