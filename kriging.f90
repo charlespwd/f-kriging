@@ -46,7 +46,7 @@ SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
    DOUBLE PRECISION, INTENT(OUT) :: MSE            ! error estimation
 
    ! Work variables
-   DOUBLE PRECISION :: X(Ns,D), XN(Ns,D) ! scaled set of snapshots
+   DOUBLE PRECISION :: X(Ns,D), XN(NewNs,D) ! scaled set of snapshots
    DOUBLE PRECISION :: XMAX(D), XMIN(D) ! min's and max for scaling
    DOUBLE PRECISION :: F(Ns,1+Order*D) ! regression matrix
    DOUBLE PRECISION :: R(Ns,Ns), Rinv(Ns,Ns) ! correlation matrix and inverse
@@ -58,9 +58,10 @@ SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
    
    X = XOLD
    XN = XNEW
-   CALL rescale(X,Ns,D,XMIN,XMAX)  ! Precondition X by "normalizing" it
-   CALL rescale(XN,Ns,D,XMIN,XMAX) ! " "
    
+   CALL rescale(X,D,Ns,XMIN,XMAX)  ! Precondition X by "normalizing" it
+   CALL rescale(XN,D,NewNs,XMIN,XMAX) ! " "
+
    ! initialize theta and bounds
    CALL init_theta(theta,bounds,X,D,Ns)
 
@@ -71,5 +72,5 @@ SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
    CALL construct_fmat(F,X,Order,D,Ns)
    CALL construct_R(R,theta,X,D,Ns,Pc)
 
-   ! call kriging_solve
+   CALL construct_kriging_RS(YNEW,XN,MSE,Y,X,F,R,theta,D,Ns,NewNs)
 END SUBROUTINE
