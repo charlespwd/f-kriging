@@ -1,6 +1,6 @@
 ROUTINES=optimize_theta_mle.o
 CONSTRUCT=construct_beta.o construct_delta.o construct_f.o construct_fmat.o construct_R.o construct_DR.o
-FUNCTIONS=get_rxy.o invertr.o eye.o rescale.o trace.o get_sigma2.o
+FUNCTIONS=get_rxy.o invertr.o eye.o rescale.o trace.o get_sigma2.o init_theta.o
 MODULE=params.o
 TEST=dump.o
 LDFLAGS=-I/usr/lib/lapack95_modules/ -llapack95 -llapack -lblas 
