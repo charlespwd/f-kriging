@@ -48,7 +48,7 @@ SUBROUTINE nuggetcorrect(R,I,Rinv,Ns,cond)
 !   CALL LA_GESVX(R,I,Rinv,RCOND=rcon)
 !   cond = rcon ** (-1) 
    IF (cond > condtol) THEN 
-      WRITE(*,'(a25,E11.5)') 'applying nugget to cond= ',cond
+!      WRITE(*,'(a25,E11.5)') 'applying nugget to cond= ',cond
       eps = (10 + Ns) * 10D0 ** (-NUGGET) 
       DO ii=1,Ns
         R(ii,ii) = R(ii,ii) + eps
@@ -59,7 +59,7 @@ SUBROUTINE nuggetcorrect(R,I,Rinv,Ns,cond)
       wI = I
 
       CALL LA_GESVX(wR,wI,Rinv,RCOND=rcon,INFO=info) 
-      WRITE(*,'(a25,E11.5)') 'cond after nugget= ', rcon**(-1)
+!      WRITE(*,'(a25,E11.5)') 'cond after nugget= ', rcon**(-1)
    END IF
 END SUBROUTINE
 
