@@ -5,5 +5,6 @@ MODULE PARAMS
    INTEGER, PARAMETER :: NUGGET = 9 ! Power of the eps added to the diagonal
    INTEGER, PARAMETER :: ORDER = 0 ! order of the regression 
    INTEGER, PARAMETER :: Pc = 2    ! power of the correlation (2=gaussian)
+   DOUBLE PRECISION, PARAMETER :: PI = 4.D0*DATAN(1.D0)
 END MODULE
 
