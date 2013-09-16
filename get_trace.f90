@@ -2,13 +2,13 @@
 ! Arguments
 !  A: square matrix, mxm
 !  m: size of matrix
-DOUBLE PRECISION FUNCTION trace(A,m)
+DOUBLE PRECISION FUNCTION get_trace(A,m)
    IMPLICIT NONE
    INTEGER, INTENT(IN) :: m
    DOUBLE PRECISION, INTENT(IN) :: A(m,m)
    INTEGER :: ii
-   trace = 0
+   get_trace = 0
    DO ii=1,m
-      trace = trace + A(ii,ii)
+      get_trace = get_trace + A(ii,ii)
    END DO
 END FUNCTION

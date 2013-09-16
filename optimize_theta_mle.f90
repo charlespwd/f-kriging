@@ -23,7 +23,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
    DOUBLE PRECISION, INTENT(INOUT) :: theta(D)
 
    ! Functions
-   DOUBLE PRECISION :: trace, get_sigma2, dnrm2
+   DOUBLE PRECISION :: get_trace, get_sigma2, dnrm2
 
    ! Work variables
    DOUBLE PRECISION :: F(Ns,1+D*ORDER) ! Regression Matrix
@@ -71,7 +71,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
       DO dd=1,D
          ! Rinv_DR(:,:,d) := Rinv*DR(:,:,d);
          call DGEMM('n','n',ns,ns,ns,1.0D0,Rinv,Ns,DR(:,:,dd),Ns,0.0d0,Rinv_DR(:,:,dd),Ns)
-         trace_RDR(dd,1) = trace(Rinv_DR(:,:,dd),ns)
+         trace_RDR(dd,1) = get_trace(Rinv_DR(:,:,dd),ns)
       END DO
 
       ! construct the B_matrix
@@ -79,7 +79,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
       DO ii=1,D
          ! RinvDRij := Rinv_DR(:,:,i) * Rinv_DR(:,:,j)
          call DGEMM('n','n',Ns,Ns,Ns,1.0D0,Rinv_DR(:,:,ii),Ns,Rinv_DR(:,:,jj),Ns,0.0D0,RinvDRij,Ns)
-         B(ii,jj) = 0.5d0 * trace(RinvDRij,Ns)
+         B(ii,jj) = 0.5d0 * get_trace(RinvDRij,Ns)
       END DO
       END DO
       
