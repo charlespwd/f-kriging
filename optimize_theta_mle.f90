@@ -18,7 +18,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
    
    ! Arguments
    INTEGER, INTENT(IN) :: D, Ns
-   DOUBLE PRECISION, INTENT(IN) :: X(Ns,Ns), Y(Ns,1)
+   DOUBLE PRECISION, INTENT(IN) :: X(Ns,D), Y(Ns,1)
    DOUBLE PRECISION, INTENT(IN) :: bounds(D,2)
    DOUBLE PRECISION, INTENT(INOUT) :: theta(D)
 
@@ -41,9 +41,15 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
    DOUBLE PRECISION :: sigma2 ! sigma^2 <BS>
    DOUBLE PRECISION :: RCOND ! condition # reciprocal
    DOUBLE PRECISION :: NRM
+   DOUBLE PRECISION :: XT(D,Ns)
    INTEGER :: I_MIN=1, I_MAX=2
    INTEGER :: ii,jj,dd,kk
    INTEGER :: INFO,fdim
+
+   ! Performance hack, construct_RT makes the same job but with loops
+   ! organized differently (column major). It reduced by 25-30% the cost
+   ! of constructing R. 
+   XT = TRANSPOSE(X)
 
    fdim = 1+Order*D
    
@@ -53,7 +59,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
 
    DO kk=1,MAXCOUNT
       call construct_FMAT(F,X,Order,D,Ns)
-      call construct_R(R,theta,X,D,Ns,Pc)
+      call construct_RT(R,theta,XT,D,Ns,Pc)
       call construct_DR(DR,R,X,D,Ns)
       call invertR(R,I,Rinv,Ns)
       call construct_beta(beta,F,Rinv,Y,Order,D,Ns)
@@ -87,7 +93,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
       call LA_GESVX(B,ID,Binv,RCOND=RCOND,INFO=INFO)
 
       IF (INFO > 0) THEN
-         print *, 'B is singular, stopped at iteration #',ii
+         print *, 'B is singular, stopped at iteration #',kk
          EXIT
       END IF 
 
@@ -118,7 +124,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
       NRM = sqrt(NRM)
 
       IF (NRM < TOL) THEN
-         PRINT *, 'Increment converged'
+         PRINT *, 'Increment converged, count= ',kk
          EXIT
       END IF
    END DO

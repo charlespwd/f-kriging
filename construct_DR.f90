@@ -17,10 +17,11 @@ SUBROUTINE construct_DR(DR,R,snap_pos,D,Ns)
    DOUBLE PRECISION, INTENT(IN) :: R(Ns,Ns)
    DOUBLE PRECISION, INTENT(IN) :: snap_pos(Ns,D)
    INTEGER :: ii, jj, kk
-   
-   DO ii=1,Ns
-      DO jj=ii,Ns
-         DO kk=1,D
+  
+   ! Reversed loop order for performance, I get ~ 20%-30% improvement D:
+   DO kk=1,D
+      DO jj=1,Ns
+         DO ii=jj,Ns
             DR(ii,jj,kk) = 0 - R(ii,jj) * ((abs(snap_pos(jj,kk) - snap_pos(ii,kk))) ** Pc)
             DR(jj,ii,kk) = DR(ii,jj,kk)
          END DO

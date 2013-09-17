@@ -23,6 +23,11 @@ MODULE ANALYTICAL_FUNCTIONS
                tmp = fdrag(X(nn,:),D)
                Y_GRADIENT(nn,1:(D+1)) = tmp(1,1:(D+1))
             END DO
+         CASE("--branin", "-b")
+            DO nn=1,Ns
+               tmp = fbranin(X(nn,:),D)
+               Y_GRADIENT(nn,1:(D+1)) = tmp(1,1:(D+1))
+            END DO
          CASE DEFAULT
             PRINT * , 'option ',adjustl(func_name), ' not supported'
             STOP
@@ -30,6 +35,7 @@ MODULE ANALYTICAL_FUNCTIONS
    END FUNCTION
 
    INCLUDE 'fdrag.f90'
+   INCLUDE 'fbranin.f90'
 END MODULE
 
 !PROGRAM p

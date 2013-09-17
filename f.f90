@@ -1,40 +1,56 @@
 PROGRAM f
    USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
+   USE grid, only:vector_grid
+   USE utils, only: printer
    IMPLICIT NONE
-   integer :: D=2, Ns=20, NsNew=5
+   integer :: D=2, Ns=15, NsNew=36, ngrid
    double precision,allocatable :: xnew(:,:),ynew(:,:)
+   double precision,allocatable :: linspace(:,:)
    double precision,allocatable :: xmin(:), xmax(:)
    double precision,allocatable :: ygrad(:,:)
-   double precision,allocatable :: analytical_solution(:,:)
+   double precision,allocatable :: ytrue(:,:)
    double precision,allocatable :: theta(:)
    double precision :: MSE
+   double precision :: MeanL1
+   character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat'
    character(len=20) :: func_name
    integer :: ii
 
+   ngrid = nsnew
+   allocate(linspace(ngrid,D))
+   nsnew = nsnew ** D
    allocate(xnew(nsnew,D))
    allocate(ynew(nsnew,1))
    allocate(ygrad(nsnew,D+1))
-   allocate(analytical_solution(nsnew,1))
+   allocate(ytrue(nsnew,1))
    allocate(theta(d))
    allocate(xmin(d))
    allocate(xmax(d))
    
    func_name = "--drag"
-   xnew(1:NsNew,1) = 0.0d0
-   xnew(1:nsNew,2) = (/(ii,ii=1,nsnew)/)
+   linspace(1:ngrid,1) = (/(-5 + (ii-1) * (10.d0/ngrid), ii=1, ngrid)/) 
+   linspace(1:ngrid,2) = (/((ii-1)*(15.0d0/ngrid),ii=1,ngrid)/)
+
+   call vector_grid(xnew,linspace,D,ngrid)
 
    ! so to get [-5:5]x[0,15]
    xmin = (/-5,0/) 
    xmax = (/5,15/)
    
    ygrad = Y_GRADIENT(xnew,D,nsnew,func_name)
-   analytical_solution(1:NsNew,1) = ygrad(1:nsnew,1)
+   ytrue(1:NsNew,1) = ygrad(1:nsnew,1)
 
    theta = (/-1,-1/)
    call analytical_solver(xnew,ynew,theta,mse,xmin,xmax,D,Ns,NsNew,func_name)
-   print *, 'analytical vs RS'
+   MeanL1 = 0.d0
    do ii=1,NsNew
-      print *, analytical_solution(ii,1),' : ', ynew(ii,1)
+      MeanL1 = ytrue(ii,1) - ynew(ii,1)
+      print *, '%err: ',(ytrue(ii,1) - ynew(ii,1))/ytrue(ii,1)*100
    end do
-end program
+   call printer(xnew,ynew,nsnew,ngrid,D,rsfile)
+   call printer(xnew,ytrue,nsnew,ngrid,D,truefile)
+   MeanL1 = MeanL1 / NsNew
+   print *, 'mean L1 error: ', MeanL1
+END PROGRAM
+
 
