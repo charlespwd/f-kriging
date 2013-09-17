@@ -6,7 +6,7 @@ TEST=dump.o
 LDFLAGS=-I/usr/lib/lapack95_modules/ -llapack95 -llapack -lblas 
 
 OPT = -O3
-PROFILE=-pg #comment out if you don't want profiling
+#PROFILE=-pg #comment out if you don't want profiling
 
 default : f.f90 $(MODULE) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES)
 	gfortran $(PROFILE) -o foo f.f90 $(MODULE) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) 

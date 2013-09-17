@@ -57,7 +57,8 @@ module utils
                      call get_command_argument(i,command)
                      read(command,'(I10)') ngrid
                   case default
-                     write(*,*) 'option "',adjustl(command),'" not supported' 
+                     write(*,*) 'option "',trim(command),'" not supported' 
+                     STOP
                end select
                i = i+1
             end do
