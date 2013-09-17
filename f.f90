@@ -18,7 +18,9 @@ PROGRAM f
    integer :: ii
 
    ! set default values or get arguments from command line
-   call process_command_input(func_name,Ns,ngrid) 
+   allocate(xmin(d))
+   allocate(xmax(d))
+   call process_command_input(func_name,Ns,ngrid,xmin,xmax) 
    nsnew = ngrid ** D
    allocate(linspace(ngrid,D))
    allocate(xnew(nsnew,D))
@@ -28,13 +30,9 @@ PROGRAM f
    allocate(x(ns,D))
    allocate(y(ns,1))
    allocate(theta(d))
-   allocate(xmin(d))
-   allocate(xmax(d))
 
-   xmin = (/-5,0/) 
-   xmax = (/5,15/)
-   linspace(1:ngrid,1) = (/(xmin(1) + (ii-1) * ((xmax(1)-xmin(1))/ngrid), ii=1, ngrid)/) 
-   linspace(1:ngrid,2) = (/(xmin(2) + (ii-1) * ((xmax(2)-xmin(2))/ngrid),ii=1,ngrid)/)
+   linspace(1:ngrid,1) = (/(xmin(1) + (ii-1) * ((xmax(1)-xmin(1))/(ngrid-1)), ii=1, ngrid)/) 
+   linspace(1:ngrid,2) = (/(xmin(2) + (ii-1) * ((xmax(2)-xmin(2))/(ngrid-1)), ii=1, ngrid)/)
    call vector_grid(xnew,linspace,D,ngrid)
 
    ygrad = Y_GRADIENT(xnew,D,nsnew,func_name)

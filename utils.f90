@@ -22,9 +22,10 @@ module utils
          close(fileid)
       end subroutine
 
-      subroutine process_command_input(funcname,Ns,Ngrid)
+      subroutine process_command_input(funcname,Ns,Ngrid,xmin,xmax)
          integer :: ns, nsnew, ngrid
          character(len=20), intent(out) :: funcname
+         double precision, dimension(2) :: xmin,xmax
          integer :: narg, i
          character(len=20) :: command
          narg = command_argument_count()
@@ -32,6 +33,8 @@ module utils
          funcname = '-d' ! by default
          Ns = 16
          Ngrid = 36
+         xmin = (/0.d0,0.d0/)
+         xmax = (/1.d0,1.d0/)
          if (narg > 0) then
             i = 1
             do while (i <= narg)
@@ -39,8 +42,12 @@ module utils
                select case(adjustl(command))
                   case ("-d","--drag")
                      funcname="-d"
+                     xmin = (/0.d0,0.d0/)
+                     xmax = (/1.d0,1.d0/)
                   case ("-b","--branin")
                      funcname="-b"
+                     xmin = (/-5.d0,0.d0/)
+                     xmax = (/5.d0,15.d0/)
                   case ("--ns")
                      i = i+1
                      call get_command_argument(i,command)
@@ -49,6 +56,8 @@ module utils
                      i = i+1
                      call get_command_argument(i,command)
                      read(command,'(I10)') ngrid
+                  case default
+                     write(*,*) 'option "',adjustl(command),'" not supported' 
                end select
                i = i+1
             end do
