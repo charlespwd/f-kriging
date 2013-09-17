@@ -21,4 +21,37 @@ module utils
          end do
          close(fileid)
       end subroutine
+
+      subroutine process_command_input(funcname,Ns,Ngrid)
+         integer :: ns, nsnew, ngrid
+         character(len=20), intent(out) :: funcname
+         integer :: narg, i
+         character(len=20) :: command
+         narg = command_argument_count()
+         ! DEFAULT VALUES
+         funcname = '-d' ! by default
+         Ns = 16
+         Ngrid = 36
+         if (narg > 0) then
+            i = 1
+            do while (i <= narg)
+               call get_command_argument(i,command)
+               select case(adjustl(command))
+                  case ("-d","--drag")
+                     funcname="-d"
+                  case ("-b","--branin")
+                     funcname="-b"
+                  case ("--ns")
+                     i = i+1
+                     call get_command_argument(i,command)
+                     read(command,'(I10)') ns
+                  case ("--ngrid")
+                     i = i+1
+                     call get_command_argument(i,command)
+                     read(command,'(I10)') ngrid
+               end select
+               i = i+1
+            end do
+         end if
+      end subroutine
 end module

@@ -1,3 +1,9 @@
+! fbranin(x,D) 
+! returns the function y and the gradient of y @ x
+!  arguments:
+!  x: loc vector, [1,D]
+!  D: # of dimensions of domain, 
+!  fbranin: [y,gradx,grady], [D+1,1]
 FUNCTION fbranin(xv,D)
    USE PARAMS, ONLY : PI
    IMPLICIT NONE
@@ -15,9 +21,9 @@ FUNCTION fbranin(xv,D)
    y = xv(1,2)
 
    ! y
-   fbranin(1,1) =  0.001d0*(1+y**2 /(1.08d0-y)) *x;
+   fbranin(1,1) =  (y - 5.1d0/(4*PI**2) * x**2 + 5.d0/PI * x - 6)**2 + 10 * (1 - 1.0d0/(8*PI))*cos(x) + 10
    ! gradx
-   fbranin(1,2) =  0.001d0 *(1+y**2 /(1.08d0-y));
+   fbranin(1,2) =  2 * (5.d0/PI - 0.258369d0*x) * (-6 + 5*x/PI - 0.129185d0*x**2 + y) - 10 * (1-1.0d0/(8*PI)) * sin(x)
    ! grady
-   fbranin(1,3) =  0.001d0 * x  * (2 * y  / (1.08d0 - y) + y**2  / ((1.08d0-y)**2));
+   fbranin(1,3) = 2*(-6 + 5.d0*x/pi - 0.129185d0*x**2 + y)
 END FUNCTION

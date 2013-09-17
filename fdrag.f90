@@ -1,9 +1,3 @@
-! fdrag(x,D) 
-! returns the function y and the gradient of y @ x
-!  arguments:
-!  x: loc vector, [1,D]
-!  D: # of dimensions of domain, 
-!  fdrag: [y,gradx,grady], [D+1,1]
 FUNCTION fdrag(xv,D)
    USE PARAMS, ONLY : PI
    IMPLICIT NONE
@@ -21,9 +15,9 @@ FUNCTION fdrag(xv,D)
    y = xv(1,2)
 
    ! y
-   fdrag(1,1) =  (y - 5.1d0/(4*PI**2) * x**2 + 5.d0/PI * x - 6)**2 + 10 * (1 - 1.0d0/(8*PI))*cos(x) + 10
+   fdrag(1,1) =  0.001d0*(1+y**2 /(1.08d0-y)) *x;
    ! gradx
-   fdrag(1,2) =  2 * (5.d0/PI - 0.258369d0*x) * (-6 + 5*x/PI - 0.129185d0*x**2 + y) - 10 * (1-1.0d0/(8*PI)) * sin(x)
+   fdrag(1,2) =  0.001d0 *(1+y**2 /(1.08d0-y));
    ! grady
-   fdrag(1,3) = 2*(-6 + 5.d0*x/pi - 0.129185d0*x**2 + y)
+   fdrag(1,3) =  0.001d0 * x  * (2 * y  / (1.08d0 - y) + y**2  / ((1.08d0-y)**2));
 END FUNCTION

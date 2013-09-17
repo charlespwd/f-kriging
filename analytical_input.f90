@@ -1,4 +1,4 @@
-SUBROUTINE analytical_solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,D,Ns,NsNew,func_name)
+SUBROUTINE analytical_solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,D,Ns,NsNew,func_name)
    USE PARAMS, ONLY: Raug
    USE LHSU, ONLY:LHS
    USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
@@ -15,7 +15,7 @@ SUBROUTINE analytical_solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,D,Ns,NsNew,func_name)
    ! work variables
    DOUBLE PRECISION :: YGRAD(Ns,D+1)
    DOUBLE PRECISION :: GRAD(Ns,D)
-   DOUBLE PRECISION :: Y(Ns,1), X(Ns,D)
+   DOUBLE PRECISION, intent(out) :: Y(Ns,1), X(Ns,D)
    
    X = LHS(XMIN,XMAX,D,Ns);
 
