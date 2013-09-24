@@ -47,7 +47,7 @@ PROGRAM f
    call printer(xnew,ytrue,nsnew,ngrid,D,truefile)
    MeanL1 = 0.d0
    do ii=1,NsNew
-      MeanL1 = ytrue(ii,1) - ynew(ii,1)
+      MeanL1 = MeanL1 + abs(ytrue(ii,1) - ynew(ii,1))
       print *, '%err: ',(ytrue(ii,1) - ynew(ii,1))/ytrue(ii,1)*100
    end do
    MeanL1 = MeanL1 / NsNew

@@ -28,6 +28,11 @@ MODULE ANALYTICAL_FUNCTIONS
                tmp = fbranin(X(nn,:),D)
                Y_GRADIENT(nn,1:(D+1)) = tmp(1,1:(D+1))
             END DO
+         CASE("--cosine", "-c")
+            DO nn=1,Ns
+               tmp = fcosine(X(nn,:),D)
+               Y_GRADIENT(nn,1:(D+1)) = tmp(1,1:(D+1))
+            END DO
          CASE DEFAULT
             PRINT * , 'option ',adjustl(func_name), ' not supported'
             STOP
@@ -36,6 +41,7 @@ MODULE ANALYTICAL_FUNCTIONS
 
    INCLUDE 'fdrag.f90'
    INCLUDE 'fbranin.f90'
+   INCLUDE 'fcosine.f90'
 END MODULE
 
 !PROGRAM p

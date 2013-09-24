@@ -48,6 +48,10 @@ module utils
                      funcname="-b"
                      xmin = (/-5.d0,0.d0/)
                      xmax = (/5.d0,15.d0/)
+                  case ("-c","--cosine")
+                     funcname="-c"
+                     xmin = (/0.d0,0.d0/)
+                     xmax = (/1.d0,1.d0/)
                   case ("--ns")
                      i = i+1
                      call get_command_argument(i,command)
