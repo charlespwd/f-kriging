@@ -48,10 +48,11 @@ PROGRAM f
    MeanL1 = 0.d0
    do ii=1,NsNew
       MeanL1 = MeanL1 + abs(ytrue(ii,1) - ynew(ii,1))
-      print *, '%err: ',(ytrue(ii,1) - ynew(ii,1))/ytrue(ii,1)*100
+      ! print *, '%err: ',(ytrue(ii,1) - ynew(ii,1))/ytrue(ii,1)*100
    end do
-   MeanL1 = MeanL1 / NsNew
-   print *, 'mean L1 error: ', MeanL1
+   print *, 'L1 error: ', MeanL1
+   print *, 'Mean L1 Error: ', MeanL1/NsNew;
+
 END PROGRAM
 
 
