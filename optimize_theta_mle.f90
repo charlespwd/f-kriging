@@ -14,6 +14,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
    USE PARAMS, ONLY: ORDER, Pc, MAXCOUNT, TOL
    USE LA_PRECISION, ONLY:WP=>DP
    USE F95_LAPACK, ONLY:LA_GESV, LA_GESVX
+   use matrix, only: eye
    IMPLICIT NONE
    
    ! Arguments

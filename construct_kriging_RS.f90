@@ -1,5 +1,6 @@
 SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
    USE PARAMS, ONLY:Order,Pc
+   USE matrix, only: eye
    IMPLICIT NONE
 
    ! ARGUMENTS
