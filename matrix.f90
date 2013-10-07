@@ -1,3 +1,8 @@
+! this module contains
+!  spectral_norm(A,m,n)
+!  rescale(X,D,Ns,XMIN,XMAX)
+!  normalize(X,m) - x is X(m)
+!  eye(I,m) 
 module matrix
    USE F95_LAPACK,ONLY:DGESVD_F95
    implicit none
@@ -15,7 +20,7 @@ module matrix
          
          allocate(SingularValues(min(m,n)))
          
-         ! LA_GESVD destroys the content of A. 
+         ! DGESVD destroys the content of A. 
          call DGESVD_F95(wA,SingularValues)
          spectral_norm = SingularValues(1)
       end function
