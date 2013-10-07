@@ -52,7 +52,7 @@ PROGRAM f
       ! print *, '%err: ',(ytrue(ii,1) - ynew(ii,1))/ytrue(ii,1)*100
    end do
    print *, 'L1 error: ', MeanL1
-   print *, 'Mean L1 Error: ', MeanL1/NsNew;
+   print *, 'Mean L1 Error: ', MeanL1/NsNew/(maxval(ytrue(:,1))-minval(ytrue(:,1)));
 
 END PROGRAM
 
