@@ -1,6 +1,6 @@
 SUBROUTINE analytical_solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,D,Ns,NsNew,func_name)
    USE PARAMS, ONLY: Raug
-   USE LHSU, ONLY:LHS
+   USE grid, ONLY:LHS
    USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
    IMPLICIT NONE
    ! arguments
