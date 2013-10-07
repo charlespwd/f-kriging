@@ -1,3 +1,7 @@
+
+! This module contains (at a high level)
+!  vector_grid(X,LINSPACES,D,NGrid) - makes a long grid vector, (e.g. snap_pos)
+!  lhs(Xmin,Xmax,D,Ns) - makes an LHS of the domain 
 MODULE grid
    implicit none
 

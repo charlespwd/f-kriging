@@ -34,6 +34,7 @@
 !   solver. See optimize_theta_mle for implementation. 
 SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
    USE PARAMS, ONLY: Pc, Order
+   use matrix, only: rescale
    IMPLICIT NONE
    
    ! ARGUMENTS
