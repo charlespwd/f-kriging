@@ -11,7 +11,7 @@ PROGRAM f
    double precision,allocatable :: ygrad(:,:)
    double precision,allocatable :: ytrue(:,:)
    double precision,allocatable :: theta(:)
-   double precision :: MSE
+   double precision,allocatable :: MSE(:)
    double precision :: MeanL1
    character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat', dotsfile='d_dots.dat'
    character(len=20) :: func_name
@@ -30,6 +30,7 @@ PROGRAM f
    allocate(x(ns,D))
    allocate(y(ns,1))
    allocate(theta(d))
+   allocate(mse(nsnew))
 
    linspace(1:ngrid,1) = (/(xmin(1) + (ii-1) * ((xmax(1)-xmin(1))/(ngrid-1)), ii=1, ngrid)/) 
    linspace(1:ngrid,2) = (/(xmin(2) + (ii-1) * ((xmax(2)-xmin(2))/(ngrid-1)), ii=1, ngrid)/)

@@ -43,7 +43,7 @@ SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
    DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)         ! set of snapshot values
    DOUBLE PRECISION, INTENT(INOUT) :: theta(D)     ! correlation parameter
    DOUBLE PRECISION, INTENT(OUT) :: YNEW(NewNs,1)  ! set of untried values
-   DOUBLE PRECISION, INTENT(OUT) :: MSE            ! error estimation
+   DOUBLE PRECISION, INTENT(OUT) :: MSE(NewNs)     ! error estimation
 
    ! Work variables
    DOUBLE PRECISION :: X(Ns,D), XN(NewNs,D) ! scaled set of snapshots

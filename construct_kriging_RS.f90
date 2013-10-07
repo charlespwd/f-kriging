@@ -10,7 +10,7 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
    DOUBLE PRECISION, INTENT(IN) :: R(Ns,Ns)
    DOUBLE PRECISION, INTENT(IN) :: theta(D)
    DOUBLE PRECISION, INTENT(OUT) :: YNEW(NsNew,1)
-   DOUBLE PRECISION, INTENT(OUT) :: MSE
+   DOUBLE PRECISION, INTENT(OUT) :: MSE(nsnew)
 
    ! Functions
    DOUBLE PRECISION :: get_sigma2, get_rxy, get_mse
@@ -57,7 +57,8 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
       !  then res = rx'*RinvYmFb + res
       CALL DGEMM('t','n',1,1,ns,1.0d0,rx,Ns,RinvYmFb,Ns,1.0d0,res,1)
       YNEW(ii,1) = res(1,1)
-   END DO 
 
+      MSE(ii) = get_mse(sigma2,F,Rinv,rx,D,Ns,fdim)
+   END DO 
 
 END SUBROUTINE

@@ -24,55 +24,35 @@ double precision function get_mse(sigma2,F,Rinv,rx,D,Ns,fdim)
    !get RtRinvr
    ! r**T * Rinv
    ! [1,ns] = [ns,1]**T * [ns,ns]
-   print*, foo
-   foo = foo + 1
    call dgemm('t','n',1,ns,ns,1.0d0,rx,ns,Rinv,ns,0.0d0,rtRinv,1)
-
 
    ! rtRinv * rx
    ! [1,1] = [1,ns] [ns,1]
-   print*, foo
-   foo = foo + 1
-
    call dgemm('n','n',1,1,ns,1.0d0,rtRinv,1,rx,ns,0.0d0,rtRinvr,1)
    
    !get F'RinvF
    ! F**T * Rinv
    ! [fdim, Ns] = [ns,fdim] ** t * [ns,ns]
-   print*, foo
-   foo = foo + 1
-
    call dgemm('t','n',fdim,ns,ns,1.0d0,F,ns,Rinv,ns,0.0d0,FtRinv,fdim)
 
    ! FtRinv * F
    ! [fdim,fdim] = [fdim,ns] [ns,fdim]
-   print*, foo
-   foo = foo + 1
-
    call dgemm('n','n',fdim,fdim,ns,1.0d0,FtRinv,fdim,F,ns,0.0d0,FtRinvF,fdim)
 
    ! FtRinv * rx
    ! [fdim,1] = [fdim,ns] * [ns,1]
-   print*, foo
-   foo = foo + 1
-
    call dgemm('n','n',fdim,1,ns,1.0d0,FtRinv,fdim,rx,ns,0.0d0,FtRinvR,fdim)
-   print*, foo
-   foo = foo + 1
 
-   ! TODO CALCULATE MSE..........
+   ! CALCULATE MSE..........
    term1 = 1.0d0
-   print*, 'rx(ns,1)', rx(ns,1)
    term2 = rtRinvr(1,1)
-   print *, 'term2 ', term2 
    term3 = (1.0d0 - spectral_norm(FtRinvR,fdim,1)) ** 2
    term4 = 1.0d0 / spectral_norm(FtRinvF,fdim,fdim)
    term3 = term3 * term4
-   print *, 'term3 ', term3
    get_mse = abs(sigma2 * (term1 - term2 + term3))
-   print*, get_mse
 end function 
 
+! unit test.
 !program test
 !   integer :: ns=189, fdim=6.
 !   double precision :: sigma2
@@ -103,7 +83,3 @@ end function
 !   close(unit=118)
 !   print *, get_mse(sigma2,F,Rinv,rx,3,Ns,fdim)
 !end program
-      
-   
-     
-   
