@@ -1,3 +1,9 @@
+! This module contains 
+!  printer(x,y,ntotal,nrow,D,filename) - prints 2D data to a file (ready for
+!     gnuplot)
+!  process_command_input(funcname,ns,ngrid,xmin,xmax) - process command line
+!     args
+!  dumpmat,vec,tensor - dumps content of arrays to STDOUT
 module utils
    implicit none
    contains

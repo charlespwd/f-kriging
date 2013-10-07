@@ -42,6 +42,16 @@ module matrix
          END DO
       END SUBROUTINE
 
+      ! normalizes positive vector between 0 and 1
+      subroutine normalize(X,m)
+         integer, intent(in) :: m
+         double precision, intent(inout) :: X(m)
+         double precision :: xmax 
+         integer :: ii
+         xmax = maxval(X)
+         X = X / xmax
+      end subroutine
+
       !! make an identiy matrix, 
       SUBROUTINE eye(I,N)
          INTEGER :: ii,N
@@ -52,6 +62,3 @@ module matrix
          end do
       END SUBROUTINE
 end module
-
-
-
