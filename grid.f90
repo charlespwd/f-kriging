@@ -75,6 +75,32 @@ MODULE grid
             
       END FUNCTION
 
+      ! creates a linearly spaced vector spanning xmin to xmax
+      function linspace(xmin,xmax,n)
+         integer, intent(in) :: n
+         double precision, intent(in) :: xmin,xmax
+         double precision, dimension(n,1) :: linspace
+         integer :: ii
+         linspace(1:n,1) = (/(xmin + (ii-1) * ((xmax - xmin)/(n-1)),ii=1,n)/)
+      end function
+
+      ! makes a grid for xnew (linear lhs)
+      subroutine columngrid(xnew,xmin,xmax,d,ngrid)
+         implicit none
+         integer, intent(in) :: d, ngrid
+         double precision, intent(in) :: xmin(d), xmax(d)
+         double precision, intent(out) :: xnew(ngrid ** D)
+         double precision :: linspaces(ngrid,d)
+         double precision :: tmpspace(ngrid,1)
+         integer :: ii
+         
+         do ii=1,D
+            tmpspace = linspace(xmin(ii),xmax(ii),ngrid)
+            linspaces(1:ngrid,ii) = tmpspace(1:ngrid,1)
+         enddo
+         call vector_grid(xnew,linspaces,D,ngrid)
+      end subroutine
+
       ! from the web
       SUBROUTINE init_random_seed()
          implicit none

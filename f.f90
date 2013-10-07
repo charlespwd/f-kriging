@@ -1,12 +1,11 @@
 PROGRAM f
    USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
-   USE grid, only:vector_grid
+   USE grid, only:vector_grid, columngrid
    USE utils, only: printer, process_command_input
    IMPLICIT NONE
    integer :: D=2, Ns, NsNew, ngrid
    double precision,allocatable :: xnew(:,:),ynew(:,:)
    double precision,allocatable :: x(:,:),y(:,:)
-   double precision,allocatable :: linspace(:,:)
    double precision,allocatable :: xmin(:), xmax(:)
    double precision,allocatable :: ygrad(:,:)
    double precision,allocatable :: ytrue(:,:)
@@ -22,7 +21,6 @@ PROGRAM f
    allocate(xmax(d))
    call process_command_input(func_name,Ns,ngrid,xmin,xmax) 
    nsnew = ngrid ** D
-   allocate(linspace(ngrid,D))
    allocate(xnew(nsnew,D))
    allocate(ynew(nsnew,1))
    allocate(ygrad(nsnew,D+1))
@@ -32,9 +30,7 @@ PROGRAM f
    allocate(theta(d))
    allocate(mse(nsnew))
 
-   linspace(1:ngrid,1) = (/(xmin(1) + (ii-1) * ((xmax(1)-xmin(1))/(ngrid-1)), ii=1, ngrid)/) 
-   linspace(1:ngrid,2) = (/(xmin(2) + (ii-1) * ((xmax(2)-xmin(2))/(ngrid-1)), ii=1, ngrid)/)
-   call vector_grid(xnew,linspace,D,ngrid)
+   call columngrid(xnew,xmin,xmax,d,ngrid)
 
    ygrad = Y_GRADIENT(xnew,D,nsnew,func_name)
    ytrue(1:NsNew,1) = ygrad(1:nsnew,1)
