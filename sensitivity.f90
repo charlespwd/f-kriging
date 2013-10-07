@@ -38,7 +38,33 @@ module sensitivity
          call normalize(psi(:,1),nsnew)
       end subroutine
 
+      ! get the sampling radius as per defined in Arthur's paper
+      double precision function get_sampling_radius(xmin,xmax,D,ns)
+         ! arguments
+         integer, intent(in) :: D,ns
+         double precision, intent(in) :: xmax(D),xmin(D)
+         
+         ! work
+         double precision :: radius=0
+         integer :: ii
+
+         do ii=1,D
+           Radius = Radius + (xmax(ii) - xmin(ii)) ** 2
+         enddo
+         Radius = 0.25d0 * (Radius ** 0.5d0) / (ns ** (1.0d0/D))
+         get_sampling_radius = Radius
+      end function
+
 end module
+
+
+!program testsampling
+!   use sensitivity, only : get_sampling_radius
+!   double precision :: xmax(2), xmin(2)
+!   xmax = (/4,3/)
+!   xmin = (/0,0/)
+!   print *, get_sampling_radius(xmin,xmax,2,4)
+!end program
 
 !program test
 !   use sensitivity, only : construct_density_function
