@@ -4,7 +4,7 @@
 ! 1 - (r**T * Rinv * r) 
 ! + (1 - || F**T * Rinv * r ||_2 ^2) / || F**T * Rinv * F||_2 ))
 double precision function get_mse(sigma2,F,Rinv,rx,D,Ns,fdim)
-   use matrixmath, only : spectral_norm
+   use matrix, only : spectral_norm
    implicit none
    
    ! inputs

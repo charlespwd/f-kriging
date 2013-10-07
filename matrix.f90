@@ -1,4 +1,4 @@
-module matrixmath
+module matrix
    USE F95_LAPACK,ONLY:DGESVD_F95
    implicit none
 
