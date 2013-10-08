@@ -17,7 +17,6 @@ module sensitivity
       construct_sensitivity
 
    contains
-
       ! constructs the density function 
       !  defined as 1 - exp(mindist to a snapshot) 
       !  so that this density function is 0 at snapshot locations
@@ -131,8 +130,34 @@ module sensitivity
             enddo
          END DO 
          call normalize(S(:,1),nsnew)
-
       END SUBROUTINE
+
+      ! calculates the sampling criterion 
+      ! S and CV are optional parameters
+      ! S takes priority over CV. So if you want CV, make sure to 
+      ! call samplingcriterion(Eest,MSE,nsnew,Psi,CV=CV)
+      ! psi is the density function as called here.
+      subroutine samplingcriterion(Eest,MSE,nsnew,PSI,S,CV)
+         integer,intent(in) :: nsnew
+         double precision, intent(in) :: MSE(nsnew,1)
+         double precision, intent(in) :: psi(nsnew,1)
+         double precision, intent(in), optional, target :: S(nsnew,1)
+         double precision, intent(in), optional, target :: CV(nsnew,1)
+         double precision, intent(out) :: Eest(nsnew,1)
+         ! work
+         integer :: ii
+         
+         do ii=1,nsnew         
+            if ( present(S) ) then
+               Eest(ii,1) = (MSE(ii,1)+S(ii,1)) * psi(ii,1)
+            elseif ( present(CV) ) then
+               Eest(ii,1) = (MSE(ii,1)+CV(ii,1)) * psi(ii,1)
+            else 
+               Eest(ii,1) = MSE(ii,1) 
+            endif
+         enddo
+         call normalize(eest,nsnew)
+      end subroutine
 
       ! -----------------------------------------------------------------
       ! private functions to compute the sentitivity 
