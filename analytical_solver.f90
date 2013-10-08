@@ -2,6 +2,7 @@ SUBROUTINE analytical_solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,D,Ns,NsNew,func_n
    USE PARAMS, ONLY: Raug
    USE grid, ONLY:LHS
    USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
+   use cokrigingmodule, only:cokriging
    IMPLICIT NONE
    ! arguments
    INTEGER, INTENT(IN) :: D,Ns,NsNew

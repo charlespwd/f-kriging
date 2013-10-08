@@ -83,7 +83,7 @@ program testsensitivity
       print*, 'theta =', theta
    close(15)
 
-   call construct_sensitivity(S,XNEW,Y,X,Grad,F,R,theta,D,Ns,NsNew)
+   call construct_sensitivity(S,XNEW,Y,X,Grad,theta,D,Ns,NsNew)
    do ii=1,15
     print*, 'S(1)= ', S(ii,1) 
    enddo

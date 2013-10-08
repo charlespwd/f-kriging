@@ -21,7 +21,12 @@
 !  For each snapshot locations, the snapshot value is derived from a taylor
 !     expansion, i.e. for a corresponding X, Y = Yold + Grad * Raug * range(X)
 !  After that, kriging is performed on this new, augmented, data set
-SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,D,Ns,NsNew)
+
+! module is here to enable optional arguments
+MODULE cokrigingmodule
+   CONTAINS
+SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,D,Ns,NsNew,S)
+   USE sensitivity, only: construct_sensitivity
    IMPLICIT NONE
 
    ! arguments
@@ -33,6 +38,7 @@ SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,D,Ns,NsNew)
    DOUBLE PRECISION, INTENT(INOUT) :: theta(D)
    DOUBLE PRECISION, INTENT(OUT) :: YNEW(NsNew,1)
    DOUBLE PRECISION, INTENT(OUT) :: MSE(NsNew)
+   DOUBLE PRECISION, INTENT(OUT), OPTIONAL, target :: S(:,:)
   
    ! work variables
    INTEGER :: Naug
@@ -75,4 +81,8 @@ SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,D,Ns,NsNew)
    ! perform kriging normally with new set of X and Y 
    CALL KRIGING(XNEW,YNEW,theta,MSE,X,Y,D,Naug,NsNew)
 
+   IF ( PRESENT(S) ) THEN
+      CALL construct_sensitivity(S,XNEW,YOLD,XOLD,Grad,theta,D,Ns,NsNew)
+   END IF
 END SUBROUTINE
+END MODULE

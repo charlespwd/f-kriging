@@ -1,14 +1,14 @@
 ! dp get_sampling_radius(xmin,xmax,D,ns)
 ! construct_density_function(Psi,Xnew,X,XMAX,XMIN,D,nsnew,ns)
-! construct_sensitivity(S,XNEW,Y,X,Grad,F,R,theta,D,Ns,NsNew)
+! construct_sensitivity(S,XNEW,Y,X,Grad,theta,D,Ns,NsNew)
 
 module sensitivity   
    use la_precision, only:wp=>dp
    use f95_lapack, only:LA_GESV
    use matrix, only : eye, normalize
    USE PARAMS, ONLY:Order,Pc
-   use correlation, only:get_rxy,invertr
-   use regression, only:construct_f
+   use correlation, only:get_rxy,invertr,construct_R
+   use regression, only:construct_f,construct_fmat
 
    implicit none
 
@@ -70,7 +70,7 @@ module sensitivity
       end function
 
       ! construct the sensitivity vectort
-      SUBROUTINE construct_sensitivity(S,XNEW,Y,X,Grad,F,R,theta,D,Ns,NsNew)
+      SUBROUTINE construct_sensitivity(S,XNEW,Y,X,Grad,theta,D,Ns,NsNew)
          IMPLICIT NONE
 
          ! ARGUMENTS
@@ -78,12 +78,12 @@ module sensitivity
          DOUBLE PRECISION, INTENT(IN) :: X(Ns,D), XNEW(NsNew,D)
          DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)
          double precision, intent(in) :: Grad(Ns,D)
-         DOUBLE PRECISION, INTENT(IN) :: F(NS,1+Order*D)
-         DOUBLE PRECISION, INTENT(INOUT) :: R(Ns,Ns)
          DOUBLE PRECISION, INTENT(IN) :: theta(D)
          DOUBLE PRECISION, INTENT(OUT) :: S(NsNew,1)
 
          ! Work variables
+         DOUBLE PRECISION :: F(NS,1+Order*D)
+         DOUBLE PRECISION :: R(Ns,Ns)
          DOUBLE PRECISION :: Rinv(Ns,Ns), I(Ns,Ns)
          DOUBLE PRECISION :: fx(1+Order*D,1)
          DOUBLE PRECISION :: rx(Ns,1)
@@ -93,10 +93,11 @@ module sensitivity
          double precision :: zeta(1+Order*D,1)
          double precision :: DRHS(ns,1)
 
-
          INTEGER :: ii,jj,dd,fdim
          fdim = 1 + Order*D
          
+         CALL construct_fmat(F,X,Order,D,Ns)
+         CALL construct_R(R,theta,X,D,Ns,Pc)
          CALL eye(I,Ns)
          CALL invertR(R,I,Rinv,Ns)
 
