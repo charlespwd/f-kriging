@@ -1,7 +1,6 @@
 ! dp get_sampling_radius(xmin,xmax,D,ns)
 ! construct_density_function(Psi,Xnew,X,XMAX,XMIN,D,nsnew,ns)
 ! construct_sensitivity(S,XNEW,Y,X,Grad,theta,D,Ns,NsNew)
-
 module sensitivity   
    use la_precision, only:wp=>dp
    use f95_lapack, only:LA_GESV
@@ -226,6 +225,5 @@ module sensitivity
       ! -----------------------------------------------------------------
       ! end - private functions to compute the sentitivity 
       ! -----------------------------------------------------------------
-        
 end module
 

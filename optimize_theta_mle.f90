@@ -14,7 +14,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
    USE PARAMS, ONLY: ORDER, Pc, MAXCOUNT, TOL
    USE LA_PRECISION, ONLY:WP=>DP
    USE F95_LAPACK, ONLY:LA_GESV, LA_GESVX
-   use matrix, only: eye
+   use matrix, only: eye, get_trace
    use regression, only: construct_fmat
    use correlation, only: construct_rt, invertr
    IMPLICIT NONE
@@ -26,7 +26,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
    DOUBLE PRECISION, INTENT(INOUT) :: theta(D)
 
    ! Functions
-   DOUBLE PRECISION :: get_trace, get_sigma2, dnrm2
+   DOUBLE PRECISION :: get_sigma2, dnrm2
 
    ! Work variables
    DOUBLE PRECISION :: F(Ns,1+D*ORDER) ! Regression Matrix
