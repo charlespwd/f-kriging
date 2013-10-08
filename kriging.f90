@@ -35,6 +35,8 @@
 SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
    USE PARAMS, ONLY: Pc, Order
    use matrix, only: rescale
+   use regression, only: construct_fmat
+   use correlation, only : construct_r
    IMPLICIT NONE
    
    ! ARGUMENTS

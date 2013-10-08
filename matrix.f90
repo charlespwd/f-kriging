@@ -50,7 +50,7 @@ module matrix
       ! normalizes positive vector between 0 and 1
       subroutine normalize(X,m)
          integer, intent(in) :: m
-         double precision, intent(inout) :: X(m)
+         double precision, intent(inout) :: X(m,1)
          double precision :: xmax 
          integer :: ii
          xmax = maxval(X)

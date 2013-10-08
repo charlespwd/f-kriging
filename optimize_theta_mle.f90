@@ -15,6 +15,8 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
    USE LA_PRECISION, ONLY:WP=>DP
    USE F95_LAPACK, ONLY:LA_GESV, LA_GESVX
    use matrix, only: eye
+   use regression, only: construct_fmat
+   use correlation, only: construct_rt, invertr
    IMPLICIT NONE
    
    ! Arguments

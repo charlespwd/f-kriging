@@ -1,6 +1,8 @@
 SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
    USE PARAMS, ONLY:Order,Pc
    USE matrix, only: eye
+   use correlation, only: invertr,get_rxy
+   use regression, only: construct_f
    IMPLICIT NONE
 
    ! ARGUMENTS
@@ -8,13 +10,13 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
    DOUBLE PRECISION, INTENT(IN) :: X(Ns,D), XNEW(NsNew,D)
    DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)
    DOUBLE PRECISION, INTENT(IN) :: F(NS,1+Order*D)
-   DOUBLE PRECISION, INTENT(IN) :: R(Ns,Ns)
+   DOUBLE PRECISION, INTENT(INOUT) :: R(Ns,Ns)
    DOUBLE PRECISION, INTENT(IN) :: theta(D)
    DOUBLE PRECISION, INTENT(OUT) :: YNEW(NsNew,1)
    DOUBLE PRECISION, INTENT(OUT) :: MSE(nsnew)
 
    ! Functions
-   DOUBLE PRECISION :: get_sigma2, get_rxy, get_mse
+   DOUBLE PRECISION :: get_sigma2, get_mse
 
    ! Work variables
    DOUBLE PRECISION :: Rinv(Ns,Ns), I(Ns,Ns)

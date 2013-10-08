@@ -1,4 +1,15 @@
+! dp get_sampling_radius(xmin,xmax,D,ns)
+! construct_density_function(Psi,Xnew,X,XMAX,XMIN,D,nsnew,ns)
+! construct_sensitivity(S,XNEW,Y,X,Grad,F,R,theta,D,Ns,NsNew)
+
 module sensitivity   
+   use la_precision, only:wp=>dp
+   use f95_lapack, only:LA_GESV
+   use matrix, only : eye, normalize
+   USE PARAMS, ONLY:Order,Pc
+   use correlation, only:get_rxy,invertr
+   use regression, only:construct_f
+
    implicit none
 
    private
@@ -13,7 +24,6 @@ module sensitivity
       !  and more than that everywhere else
       !  the result is 'normalized'
       subroutine construct_density_function(Psi,Xnew,X,XMAX,XMIN,D,nsnew,ns)
-         use matrix, only : normalize
          ! arguments
          integer, intent(in) :: nsnew, ns, d
          double precision, intent(in) :: Xnew(nsnew,D), X(ns,D)
@@ -59,10 +69,8 @@ module sensitivity
          get_sampling_radius = Radius
       end function
 
-      ! construct the sensitivity vector
+      ! construct the sensitivity vectort
       SUBROUTINE construct_sensitivity(S,XNEW,Y,X,Grad,F,R,theta,D,Ns,NsNew)
-         USE PARAMS, ONLY:Order,Pc
-         USE matrix, only: eye, normalize
          IMPLICIT NONE
 
          ! ARGUMENTS
@@ -71,20 +79,20 @@ module sensitivity
          DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)
          double precision, intent(in) :: Grad(Ns,D)
          DOUBLE PRECISION, INTENT(IN) :: F(NS,1+Order*D)
-         DOUBLE PRECISION, INTENT(IN) :: R(Ns,Ns)
+         DOUBLE PRECISION, INTENT(INOUT) :: R(Ns,Ns)
          DOUBLE PRECISION, INTENT(IN) :: theta(D)
          DOUBLE PRECISION, INTENT(OUT) :: S(NsNew,1)
 
-         ! Functions
-         DOUBLE PRECISION :: get_rxy
-
          ! Work variables
          DOUBLE PRECISION :: Rinv(Ns,Ns), I(Ns,Ns)
-         DOUBLE PRECISION :: fx(1+Order*D,1)
+         DOUBLE PRECISION :: fx(1,1+Order*D)
          DOUBLE PRECISION :: rx(Ns,1)
          DOUBLE PRECISION :: res(1,1)
          double precision :: psi(ns,1) 
          double precision :: gradsum(ns,1)
+         double precision :: zeta(1+Order*D,1)
+         double precision :: DRHS(ns,1)
+
 
          INTEGER :: ii,jj,dd,fdim
          fdim = 1 + Order*D
@@ -93,9 +101,8 @@ module sensitivity
          CALL invertR(R,I,Rinv,Ns)
 
          ! construct gradsum
-         gradsum = 0
          do jj=1,ns
-            gradsum=0.0d0
+            gradsum(jj,1) =0.0d0
             do dd=1,D
                gradsum(jj,1) = gradsum(jj,1) + abs(grad(jj,dd))
             enddo
@@ -104,7 +111,7 @@ module sensitivity
 
          DO ii=1,NsNew
             ! construct f(x)
-            call construct_f(fx(:,1),XNEW(ii,:),Order,D,Ns)
+            call construct_f(fx,XNEW(ii,:),Order,D,Ns)
             
             ! construct r(x)
             DO jj=1,ns
@@ -119,10 +126,10 @@ module sensitivity
                call construct_zeta(zeta,F,Rinv,Psi,D,Ns,fdim)
                call construct_DRHS(DRHS,F,Rinv,Psi,zeta,D,Ns,fdim)
                S(ii,1) = S(ii,1) + get_S_j(fx,zeta,rx,DRHS,D,Ns,fdim)
-               psi(jj,0) = 0.0d0
+               psi(jj,1) = 0.0d0
             enddo
          END DO 
-         call normalize(S(:,1),ns)
+         call normalize(S(:,1),nsnew)
 
       END SUBROUTINE
 
@@ -131,8 +138,6 @@ module sensitivity
       ! -----------------------------------------------------------------
          ! zeta=(F'*Rinv*F)\(F'*Rinv*Psi);
          subroutine construct_zeta(zeta,F,Rinv,Psi,D,Ns,fdim)
-            use la_precision, only:wp=>dp
-            use f95_lapack, only:LA_GESV
             integer, intent(in) :: d, ns, fdim
             double precision, intent(in) :: F(ns,fdim), Rinv(ns,ns)
             double precision, intent(in) :: Psi(ns,1)
@@ -187,7 +192,7 @@ module sensitivity
             call dgemm('t','n',1,1,fdim,1.0d0,fx,fdim,zeta,fdim,0.0d0,fxtzeta,1)
 
             ! res = abs(fx*zeta+r'*DRHS);
-            res(1,1) = fxtzeta
+            res = fxtzeta
             call dgemm('t','n',1,1,ns,1.0d0,rx,ns,DRHS,ns,1.0d0,res,1)
             
             get_S_j = abs(res(1,1))
@@ -198,6 +203,95 @@ module sensitivity
         
 end module
 
+!program testsensitivity
+!   use sensitivity, only: construct_sensitivity
+!   implicit none
+!   integer :: D, Ns, NsNew, order=2
+!   double precision,allocatable :: S(:,:),X(:,:),Y(:,:),Grad(:,:),F(:,:),R(:,:)
+!   double precision,allocatable :: theta(:), XNEW(:,:) 
+!   integer :: ii,fdim
+!
+!   ! D
+!   open(unit=15,file='csvd.dat',status='old')
+!      read(15,*) D
+!      print*, 'd= ', D
+!   close(15)
+!
+!   ! ns
+!   open(unit=15,file='csvns.dat',status='old')
+!      read(15,*) ns
+!      print*, 'ns= ', ns
+!   close(15)
+!
+!   ! nsnew
+!   open(unit=15,file='csvnsnew.dat',status='old')
+!      read(15,*) nsnew
+!      print*, 'nsnew =', nsnew
+!   close(15)
+!
+!   fdim = 1+Order*D
+!   print*, 'fdim  =', fdim 
+!
+!   allocate(X(ns,D))
+!   allocate(XNEW(nsnew,D))
+!   allocate(Y(ns,1))
+!   allocate(Grad(ns,D))
+!   allocate(F(ns,fdim))
+!   allocate(R(ns,ns))
+!   allocate(theta(D))
+!   allocate(S(nsnew,1))
+!
+!   ! x
+!   open(unit=15,file='csvx.dat',status='old')
+!   do ii=1,D
+!      read(15,*) X(:,ii)
+!   enddo
+!   close(15)
+!
+!   ! xnew
+!   open(unit=15,file='csvxnew.dat',status='old')
+!   do ii=1,D
+!      read(15,*) XNEW(:,ii)
+!   enddo
+!   close(15)
+!
+!   ! Y
+!   open(unit=15,file='csvy.dat',status='old')
+!      read(15,*) Y(:,1)
+!   close(15)
+!
+!    ! GRAD
+!   open(unit=15,file='csvgrad.dat',status='old')
+!   do ii=1,D
+!      read(15,*) GRAD(:,ii)
+!   enddo
+!   close(15)
+!
+!   ! F
+!   open(unit=15,file='csvf.dat',status='old')
+!   do ii=1,fdim
+!      read(15,*) F(:,ii)
+!   enddo
+!   close(15)
+!
+!   ! R
+!   open(unit=15,file='csvr.dat',status='old')
+!   do ii=1,ns
+!      read(15,*) R(:,ii)
+!   enddo
+!   close(15)
+!
+!   ! theat
+!   open(unit=15,file='csvtheta.dat',status='old')
+!      read(15,*) theta
+!      print*, 'theta =', theta
+!   close(15)
+!
+!   call construct_sensitivity(S,XNEW,Y,X,Grad,F,R,theta,D,Ns,NsNew)
+!   do ii=1,15
+!    print*, 'S(1)= ', S(ii,1) 
+!   enddo
+!end program
 
 !program testsampling
 !   use sensitivity, only : get_sampling_radius

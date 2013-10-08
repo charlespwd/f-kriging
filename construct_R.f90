@@ -16,8 +16,8 @@ SUBROUTINE construct_R(R,theta,X,D,Ns,Pc)
    DOUBLE PRECISION :: get_rxy
    INTEGER :: D, Ns, Pc
    INTEGER :: ii, jj, dd
-   DOUBLE PRECISION :: R(Ns,Ns),theta(D)
-   DOUBLE PRECISION :: X(Ns,D)
+   DOUBLE PRECISION,intent(out) :: R(Ns,Ns)
+   DOUBLE PRECISION,intent(in) :: X(Ns,D),theta(D)
    DOUBLE PRECISION :: tmp
    DO ii=1,Ns
       DO jj=ii,Ns
@@ -41,8 +41,8 @@ SUBROUTINE construct_RT(R,theta,X,D,Ns,Pc)
    DOUBLE PRECISION :: get_rxy
    INTEGER :: D, Ns, Pc
    INTEGER :: ii, jj, dd
-   DOUBLE PRECISION :: R(Ns,Ns),theta(D)
-   DOUBLE PRECISION :: X(D,Ns)
+   DOUBLE PRECISION,intent(out) :: R(Ns,Ns)
+   DOUBLE PRECISION,intent(in) :: X(D,Ns),theta(D)
    DOUBLE PRECISION :: tmp
    DO jj=1,Ns
       DO ii=jj,Ns
