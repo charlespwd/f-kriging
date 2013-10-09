@@ -7,8 +7,9 @@
 module utils
    implicit none
    contains
-      subroutine printer(x,y,ntotal,nrow,D,filename,datafolder)
-         integer,intent(in) :: ntotal, nrow, D
+      subroutine printer(x,y,ntotal,nrow,D,filename,datafolder,iterate)
+         integer, intent(in) :: ntotal, nrow, D
+         integer, intent(in),optional :: iterate
          character(len=20),intent(in), optional :: datafolder
          double precision, intent(in) :: x(ntotal,D), y(ntotal,1)
          double precision :: xt(D,ntotal), yt(1,ntotal)
@@ -22,6 +23,11 @@ module utils
          else
             wfilename = adjustl(filename)
          endif
+         ! append number to filename
+         if (present(iterate)) then
+            write(wfilename,*) trim(wfilename), iterate 
+         endif
+
          open(fileid,FILE=adjustl(wfilename),status='replace')
          j = 1
          do ii=1,ntotal

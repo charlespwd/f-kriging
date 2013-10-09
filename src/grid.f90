@@ -178,4 +178,16 @@ MODULE grid
 
       END SUBROUTINE RPERM
 
+		subroutine grow2d(array,deltarow) 
+			integer :: deltarow
+			double precision, allocatable, intent(inout) :: array(:,:)
+			double precision, allocatable :: tmparray(:,:)
+		
+			allocate(tmparray(size(array,1)+deltarow,size(array,2)))
+			tmparray(1:size(array,1),1:size(array,2)) = array
+			deallocate(array)
+			allocate(array(size(tmparray,1),size(tmparray,2)))
+			array = tmparray
+		end subroutine
+
 END MODULE

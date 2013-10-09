@@ -1,5 +1,6 @@
 PROGRAM f
-   USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
+   use analytical_functions, only: y_gradient
+   use analytical_solver, only: solver
    USE grid, only:vector_grid, columngrid, LHS
    USE utils, only: printer, process_command_input
    IMPLICIT NONE
@@ -46,7 +47,7 @@ PROGRAM f
    X(NS,:) = (/XMAX(1),XMAX(2)/) 
 
    theta = (/-1,-1/)
-   call analytical_solver(xnew,ynew,theta,mse,xmin,xmax,x,y,D,Ns,NsNew,func_name)
+   call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,D,Ns,NsNew,func_name)
    
    ! make fancy graphs
    call printer(x,y,ns,1,D,dotsfile,datadir)

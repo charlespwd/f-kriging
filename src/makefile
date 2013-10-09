@@ -10,6 +10,9 @@ OPT = -O3
 default : f.f90 $(MODULES) $(CONSTRUCT) $(ROUTINES)
 	gfortran $(PROFILE) -o ../foo f.f90 $(MODULES) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)
 
+sensitivity : s.f90 $(MODULES) $(CONSTRUCT) $(ROUTINES)
+	gfortran $(PROFILE) -o ../bar s.f90 $(MODULES) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)
+
 %.o : %.f90
 	gfortran $(PROFILE) $(OPT) -c $< $(LDFLAGS) -J$(BINDIR)
 
@@ -17,7 +20,7 @@ clear :
 	rm *.o *.mod ../foo
 	rm $(BINDIR)/*.mod
 
-sensitivity : sensitivity.o correlation.o regression.o params.o matrix.o
+sensitivity-test : sensitivity.o correlation.o regression.o params.o matrix.o
 	gfortran -c sensitivity.f90 params.o correlation.o regression.o matrix.o $(LDFLAGS)
 	gfortran -o sens ./unit-tests/sensitivity-unittests.f90 sensitivity.o params.o correlation.o regression.o matrix.o $(LDFLAGS) && ./sens
 	
