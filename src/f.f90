@@ -1,6 +1,6 @@
 PROGRAM f
    USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
-   USE grid, only:vector_grid, columngrid
+   USE grid, only:vector_grid, columngrid, LHS
    USE utils, only: printer, process_command_input
    IMPLICIT NONE
    integer :: D=2, Ns, NsNew, ngrid
@@ -36,6 +36,14 @@ PROGRAM f
 
    ygrad = Y_GRADIENT(xnew,D,nsnew,func_name)
    ytrue(1:NsNew,1) = ygrad(1:nsnew,1)
+   
+   ! make initial grid
+   X(1:Ns-4,:) = LHS(XMIN,XMAX,D,Ns-4);
+   ! Strong corners (makes prettier graphs)
+   X(Ns-3,:) = (/XMIN(1),XMIN(2)/)
+   X(NS-2,:) = (/XMIN(1),XMAX(2)/)
+   X(NS-1,:) = (/XMAX(1),XMIN(2)/)
+   X(NS,:) = (/XMAX(1),XMAX(2)/) 
 
    theta = (/-1,-1/)
    call analytical_solver(xnew,ynew,theta,mse,xmin,xmax,x,y,D,Ns,NsNew,func_name)
