@@ -7,15 +7,22 @@
 module utils
    implicit none
    contains
-      subroutine printer(x,y,ntotal,nrow,D,filename)
+      subroutine printer(x,y,ntotal,nrow,D,filename,datafolder)
          integer,intent(in) :: ntotal, nrow, D
+         character(len=20),intent(in), optional :: datafolder
          double precision, intent(in) :: x(ntotal,D), y(ntotal,1)
          double precision :: xt(D,ntotal), yt(1,ntotal)
          character(len=20), intent(in) :: filename
+         character(len=20) :: wfilename
          integer :: ii,j, fileid = 56
          xt = transpose(x)
          yt = transpose(y)
-         open(fileid,FILE=adjustl(filename),status='replace')
+         if (present(datafolder)) then
+            wfilename = trim(datafolder)//'/'//trim(filename)
+         else
+            wfilename = adjustl(filename)
+         endif
+         open(fileid,FILE=adjustl(wfilename),status='replace')
          j = 1
          do ii=1,ntotal
             write(fileid,*) xt(1,ii)," ",xt(2,ii)," ",yt(1,ii)

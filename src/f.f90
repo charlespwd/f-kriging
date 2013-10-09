@@ -14,8 +14,10 @@ PROGRAM f
    double precision :: MeanL1
    character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat', dotsfile='d_dots.dat'
    character(len=20) :: func_name
+   character(len=20) :: datadir
    integer :: ii
 
+   datadir = 'data'
    ! set default values or get arguments from command line
    allocate(xmin(d))
    allocate(xmax(d))
@@ -39,9 +41,9 @@ PROGRAM f
    call analytical_solver(xnew,ynew,theta,mse,xmin,xmax,x,y,D,Ns,NsNew,func_name)
    
    ! make fancy graphs
-   call printer(x,y,ns,1,D,dotsfile)
-   call printer(xnew,ynew,nsnew,ngrid,D,rsfile)
-   call printer(xnew,ytrue,nsnew,ngrid,D,truefile)
+   call printer(x,y,ns,1,D,dotsfile,datadir)
+   call printer(xnew,ynew,nsnew,ngrid,D,rsfile,datadir)
+   call printer(xnew,ytrue,nsnew,ngrid,D,truefile,datadir)
    MeanL1 = 0.d0
    do ii=1,NsNew
       MeanL1 = MeanL1 + abs(ytrue(ii,1) - ynew(ii,1))
