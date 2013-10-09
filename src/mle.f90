@@ -7,5 +7,6 @@ module MLE
       include "./mle-src/construct_delta.f90" 
       include "./mle-src/construct_DR.f90" 
       include "./mle-src/init_theta.f90" 
+      include "./mle-src/get_sigma2.f90"
 end module
 

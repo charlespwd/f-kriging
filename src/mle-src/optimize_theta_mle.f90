@@ -25,9 +25,6 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
    DOUBLE PRECISION, INTENT(IN) :: bounds(D,2)
    DOUBLE PRECISION, INTENT(INOUT) :: theta(D)
 
-   ! Functions
-   DOUBLE PRECISION :: get_sigma2, dnrm2
-
    ! Work variables
    DOUBLE PRECISION :: F(Ns,1+D*ORDER) ! Regression Matrix
    DOUBLE PRECISION :: R(Ns,Ns), DR(Ns,Ns,D) ! Correlation and derivative

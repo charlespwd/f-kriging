@@ -1,6 +1,5 @@
 ROUTINES=kriging.o cokriging.o analytical_solver.f90
 CONSTRUCT=construct_kriging_RS.o
-FUNCTIONS= get_sigma2.o get_mse.o
 MODULES=params.o analytical_functions.o grid.o utils.o matrix.o regression.o correlation.o sensitivity.o mle.o
 LDFLAGS=-I/usr/lib/lapack95_modules/ -llapack95 -llapack -lblas 
 BINDIR=../bin
@@ -8,7 +7,7 @@ BINDIR=../bin
 OPT = -O3
 #PROFILE=-pg #comment out if you don't want profiling
 
-default : f.f90 $(MODULES) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES)
+default : f.f90 $(MODULES) $(CONSTRUCT) $(ROUTINES)
 	gfortran $(PROFILE) -o ../foo f.f90 $(MODULES) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)
 
 %.o : %.f90
