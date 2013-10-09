@@ -61,7 +61,7 @@ module matrix
       SUBROUTINE eye(I,N)
          INTEGER :: ii,N
          DOUBLE PRECISION :: I(N,N)
-         I(:,:) = 0.0D1
+         I(:,:) = 0.0D0
          do ii=1,N
             I(ii,ii) = 1
          end do
@@ -82,5 +82,17 @@ module matrix
          END DO
       END FUNCTION
 
-
+      ! calculates the distance betwen two vectors
+      DOUBLE PRECISION FUNCTION distance(X,Y,D)
+         integer, intent(in) :: D
+         double precision, intent(in) :: X(1,D), Y(1,D)
+         ! work
+         integer :: ii
+         double precision :: tmp
+         tmp = 0.0d0
+         do ii = 1,D
+           tmp = tmp + (X(1,ii) - Y(1,ii)) ** 2.0d0
+         enddo
+         distance = tmp ** (0.5d0) 
+      end function
 end module
