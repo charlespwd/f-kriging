@@ -8,6 +8,7 @@ module sensitivity
    USE PARAMS, ONLY:Order,Pc
    use correlation, only:get_rxy,invertr,construct_R
    use regression, only:construct_f,construct_fmat
+   use fort_arrange, only: sort
 
    implicit none
 
@@ -158,6 +159,22 @@ module sensitivity
          call normalize(eest,nsnew)
       end subroutine
 
+      ! construct_insertion_stack
+      !  this function constructs an array where the first column
+      !  represents the error at the second column's index in the 
+      !  xnew grid.
+      !  this array is sorted with the minimum error at the first index 
+      function construct_insertion_stack(eest,ns) 
+         integer, intent(in) :: ns
+         double precision, intent(in) :: eest(ns,1)
+         double precision :: construct_insertion_stack(ns,2)
+         integer :: i
+         construct_insertion_stack(1:ns,1) = eest(1:ns,1)
+         construct_insertion_stack(1:ns,2) = (/(i,i=1,ns)/)
+         call sort(construct_insertion_stack,1)
+      end function
+
+      subroutine 
       ! -----------------------------------------------------------------
       ! private functions to compute the sentitivity 
       ! -----------------------------------------------------------------
