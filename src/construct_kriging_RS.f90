@@ -3,6 +3,7 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
    USE matrix, only: eye
    use correlation, only: invertr,get_rxy
    use regression, only: construct_f
+   use mle, only : construct_beta
    IMPLICIT NONE
 
    ! ARGUMENTS

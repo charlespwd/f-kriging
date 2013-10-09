@@ -1,14 +1,14 @@
-ROUTINES=optimize_theta_mle.o kriging.o cokriging.o analytical_solver.f90
-CONSTRUCT=construct_beta.o construct_delta.o construct_DR.o construct_kriging_RS.o
-FUNCTIONS= get_sigma2.o init_theta.o get_mse.o
-MODULE=params.o analytical_functions.o grid.o utils.o matrix.o regression.o correlation.o sensitivity.o
+ROUTINES=kriging.o cokriging.o analytical_solver.f90
+CONSTRUCT=construct_kriging_RS.o
+FUNCTIONS= get_sigma2.o get_mse.o
+MODULES=params.o analytical_functions.o grid.o utils.o matrix.o regression.o correlation.o sensitivity.o mle.o
 LDFLAGS=-I/usr/lib/lapack95_modules/ -llapack95 -llapack -lblas 
 
 OPT = -O3
 #PROFILE=-pg #comment out if you don't want profiling
 
-default : f.f90 $(MODULE) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES)
-	gfortran $(PROFILE) -o foo f.f90 $(MODULE) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) 
+default : f.f90 $(MODULES) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES)
+	gfortran $(PROFILE) -o foo f.f90 $(MODULES) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) 
 
 %.o : %.f90
 	gfortran $(PROFILE) $(OPT) -c $< $(LDFLAGS)

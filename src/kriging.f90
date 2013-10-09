@@ -37,6 +37,7 @@ SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
    use matrix, only: rescale
    use regression, only: construct_fmat
    use correlation, only : construct_r
+   use mle, only : optimize_theta_mle, init_theta
    IMPLICIT NONE
    
    ! ARGUMENTS

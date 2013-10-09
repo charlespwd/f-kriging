@@ -1,0 +1,76 @@
+#!/bin/bash
+f=drag
+echo "$f,ns=10,ng=100x100" > ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 10 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}1
+done
+
+echo "$f,ns=20,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 20 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}2
+done
+
+echo "$f,ns=30,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 30 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}3
+done
+
+echo "$f,ns=40,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 40 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}4
+done
+
+echo "$f,ns=50,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 50 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}5
+done
+
+echo "$f,ns=60,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 60 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}6
+done
+gnuplot g.gp
+
+f=branin
+echo "$f,ns=10,ng=100x100" > ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 10 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}1
+done
+
+echo "$f,ns=20,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 20 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}2
+done
+
+echo "$f,ns=30,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 30 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}3
+done
+
+echo "$f,ns=40,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 40 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}4
+done
+
+echo "$f,ns=50,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 50 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}5
+done
+
+echo "$f,ns=60,ng=100x100" >> ~/w-reports/tr/oc1/rep$f.txt
+./foo --$f --ns 60 --ngrid 100 >> ~/w-reports/tr/oc1/rep$f.txt
+for file in *.dat; do
+	mv $file ${file}6
+done
+gnuplot g2.gp
