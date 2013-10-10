@@ -9,6 +9,7 @@ PROGRAM f
    double precision,allocatable :: x(:,:),y(:,:)
    double precision,allocatable :: xmin(:), xmax(:)
    double precision,allocatable :: ygrad(:,:)
+   double precision,allocatable :: grad(:,:)
    double precision,allocatable :: ytrue(:,:)
    double precision,allocatable :: theta(:)
    double precision,allocatable :: MSE(:)
@@ -30,6 +31,7 @@ PROGRAM f
    allocate(ytrue(nsnew,1))
    allocate(x(ns,D))
    allocate(y(ns,1))
+   allocate(grad(ns,D))
    allocate(theta(d))
    allocate(mse(nsnew))
 
@@ -47,7 +49,7 @@ PROGRAM f
    X(NS,:) = (/XMAX(1),XMAX(2)/) 
 
    theta = (/-1,-1/)
-   call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,D,Ns,NsNew,func_name)
+   call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,D,Ns,NsNew,func_name)
    
    ! make fancy graphs
    call printer(x,y,ns,1,D,dotsfile,datadir)

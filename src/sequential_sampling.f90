@@ -32,7 +32,6 @@ module sequential_sampling
          do ii=nsnew,1,-1
             toadd = 1
             ierr = errorstack(ii,2)
-            print*, 'now serving error at index =', ierr
             ! check if new point is close to old snapshots
             do jj=1,ns
                if (distance(XNEW(ierr,1:D),XOLD(jj,1:D),D) <= Radius) then

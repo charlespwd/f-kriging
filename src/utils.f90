@@ -25,7 +25,7 @@ module utils
          endif
          ! append number to filename
          if (present(iterate)) then
-            write(wfilename,*) trim(wfilename), iterate 
+            write(wfilename,'(a,i3.3)') trim(wfilename), iterate 
          endif
 
          open(fileid,FILE=adjustl(wfilename),status='replace')
