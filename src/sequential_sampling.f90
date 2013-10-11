@@ -6,6 +6,7 @@
 module sequential_sampling
    use fort_arrange, only: sort
    use matrix, only: normalize, distance
+   use utils, only: m_SENSITIVITY, m_MSE
 
    implicit none
 
@@ -117,24 +118,38 @@ module sequential_sampling
       ! S takes priority over CV. So if you want CV, make sure to 
       ! call samplingcriterion(Eest,MSE,nsnew,Psi,CV=CV)
       ! psi is the density function as called here.
-      subroutine samplingcriterion(Eest,MSE,nsnew,PSI,S,CV)
+      subroutine samplingcriterion(Eest,MSE,nsnew,PSI,mode,S)
          integer,intent(in) :: nsnew
+         integer, intent(in) :: mode
          double precision, intent(in) :: MSE(nsnew,1)
          double precision, intent(in) :: psi(nsnew,1)
          double precision, intent(in), optional, target :: S(nsnew,1)
-         double precision, intent(in), optional, target :: CV(nsnew,1)
          double precision, intent(out) :: Eest(nsnew,1)
+         double precision :: wmse(nsnew,1), ws(nsnew,1)
          ! work
          integer :: ii
+
+         wmse = mse
+         call normalize(wmse(:,1),nsnew)
+         if(present(s)) then
+            ws = s
+            call normalize(ws(:,1),nsnew)
+         endif
          
          do ii=1,nsnew         
-            if ( present(S) ) then
-               Eest(ii,1) = (MSE(ii,1)+S(ii,1)) * psi(ii,1)
-            elseif ( present(CV) ) then
-               Eest(ii,1) = (MSE(ii,1)+CV(ii,1)) * psi(ii,1)
-            else 
-               Eest(ii,1) = MSE(ii,1) 
-            endif
+         select case (mode) 
+               case(m_MSE) 
+                  Eest(ii,1) = MSE(ii,1) 
+               case(m_SENSITIVITY)
+                  if ( .not. present(S)) then
+                     print*, 'in sampling criterion, S not present'
+                     stop
+                  endif
+                  Eest(ii,1) = (MSE(ii,1)+S(ii,1)) * psi(ii,1)
+               case default
+                  print*, 'mode not recognized'
+                  stop
+            end select
          enddo
          call normalize(eest,nsnew)
       end subroutine

@@ -6,6 +6,8 @@
 !  dumpmat,vec,tensor - dumps content of arrays to STDOUT
 module utils
    implicit none
+   integer,parameter ::  m_MSE = 0
+   integer,parameter ::  m_SENSITIVITY = 1
    contains
       subroutine printer(x,y,ntotal,nrow,D,filename,datafolder,iterate)
          integer, intent(in) :: ntotal, nrow, D
@@ -41,8 +43,12 @@ module utils
          close(fileid)
       end subroutine
 
-      subroutine process_command_input(funcname,Ns,Ngrid,xmin,xmax)
+      subroutine process_command_input(funcname,Ns,Ngrid,xmin,xmax,nfinal, &
+            mode,deltans)
          integer :: ns, nsnew, ngrid
+         integer, intent(inout), optional :: nfinal
+         integer, intent(inout), optional :: mode !! mse=0, sensitivy=1
+         integer, intent(inout), optional :: deltans
          character(len=20), intent(out) :: funcname
          double precision, dimension(2) :: xmin,xmax
          integer :: narg, i
@@ -54,6 +60,10 @@ module utils
          Ngrid = 36
          xmin = (/0.d0,0.d0/)
          xmax = (/1.d0,1.d0/)
+         ! mode default value
+         if (present(mode)) then
+            mode = m_MSE
+         endif
          if (narg > 0) then
             i = 1
             do while (i <= narg)
@@ -79,6 +89,38 @@ module utils
                      i = i+1
                      call get_command_argument(i,command)
                      read(command,'(I10)') ngrid
+                  case ("--nfinal")
+                     i = i+1
+                     call get_command_argument(i,command)
+                     if (present(nfinal)) then
+                        read(command,'(I10)') nfinal
+                     else 
+                        print*, 'nfinal is not supported'
+                        STOP 
+                     endif
+                  case ("-s","--sensitivity")
+                     if (present(mode)) then
+                        mode = m_SENSITIVITY
+                     else 
+                        print*, 'mode is not supported'
+                        STOP
+                     endif
+                  case ("--deltans")
+                     if (present(deltans)) then
+                        i = i+1
+                        call get_command_argument(i.command)
+                        read(command,'(I10)') deltans
+                     else 
+                        print*, 'deltans is not supported'
+                        STOP
+                     endif
+                  case ("-m","--mse")
+                     if (present(mode)) then
+                        mode = m_MSE
+                     else
+                        print*, 'mode is not supported'
+                        STOP
+                     endif
                   case default
                      write(*,*) 'option "',trim(command),'" not supported' 
                      STOP
@@ -87,6 +129,18 @@ module utils
             end do
          end if
       end subroutine
+
+      double precision function l1error(ytrue,ynew,nsnew)
+         integer, intent(in) :: nsnew
+         double precision, intent(in) :: ytrue(nsnew,1), ynew(nsnew,1)
+         integer :: ii
+         double precision :: meanl1
+         MeanL1 = 0.d0
+         do ii=1,NsNew
+            MeanL1 = MeanL1 + abs(ytrue(ii,1) - ynew(ii,1))
+         end do
+         l1error = meanl1 / nsnew
+      end function
 
       SUBROUTINE DUMPMAT(A,dim1,dim2)
          INTEGER :: dim1, dim2 

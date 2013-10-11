@@ -2,11 +2,11 @@ PROGRAM sprogram
    use analytical_functions, only: y_gradient
    use analytical_solver, only:solver
    USE grid, only:vector_grid, columngrid, LHS, grow2d
-   USE utils, only: printer, process_command_input
+   USE utils, only: printer, process_command_input, l1error
    use sequential_sampling, only : get_sampling_radius, &
       construct_density_function, samplingcriterion, sampler
    IMPLICIT NONE
-   integer :: D=2, Ns, NsNew, ngrid, deltans, nfinal, loopcount
+   integer :: D=2, Ns, NsNew, ngrid, deltans, nfinal, loopcount, mode
    integer,allocatable :: newsamples(:)
    double precision,allocatable :: xnew(:,:),ynew(:,:)
    double precision,allocatable :: x(:,:),y(:,:)
@@ -27,14 +27,15 @@ PROGRAM sprogram
    integer :: ii
 
    errfile='./data/e.dat'
-   deltans=3
+   deltans=4
    nfinal=30
    loopcount = 0
    datadir = 'data'
    ! set default values or get arguments from command line
    allocate(xmin(d))
    allocate(xmax(d))
-   call process_command_input(func_name,Ns,ngrid,xmin,xmax) 
+   call process_command_input(func_name,Ns,ngrid,xmin,xmax, & 
+      nfinal=nfinal, mode=mode) 
    nsnew = ngrid ** D
    allocate(xnew(nsnew,D))
    allocate(ynew(nsnew,1))
@@ -68,19 +69,12 @@ PROGRAM sprogram
    call printer(xnew,ynew,nsnew,ngrid,D,rsfile,datadir,loopcount)
    call printer(xnew,ytrue,nsnew,ngrid,D,truefile,datadir,loopcount)
    open(67,file=adjustl(errfile),status='replace')
-   MeanL1 = 0.d0
-   do ii=1,NsNew
-      MeanL1 = MeanL1 + abs(ytrue(ii,1) - ynew(ii,1))
-      ! print *, '%err: ',(ytrue(ii,1) - ynew(ii,1))/ytrue(ii,1)*100
-   end do
-   write(67,*) 'ns= ',ns,', ngrid=',ngrid,'x',ngrid
-   write(67,*) '  L1 error: ', MeanL1
-   write(67,*) '  Mean L1 Error: ', MeanL1/NsNew/(maxval(ytrue(:,1))-minval(ytrue(:,1)));
-   write(67,*) ''
-
+   ! print error to file
+   write(67, *) ns, l1error(ytrue,ynew,nsnew)
+   
    loopcount = 0
    ! sequential sampling loop
-   do while (ns<nfinal)
+   do while (ns<=nfinal)
       print*, 'ns = ', ns 
 
       ! reinit theta
@@ -93,7 +87,7 @@ PROGRAM sprogram
       call construct_density_function(psi,xnew,x,xmax,xmin,D,nsnew,ns)
 
       ! construct the new eest stack
-      call samplingcriterion(eest,mse,nsnew,psi,S=S)
+      call samplingcriterion(eest,mse,nsnew,psi,mode,S=S)
 
       ! find the points to add to the set
       call sampler(newsamples,Eest,XNEW,X,samplingRadius,deltaNs,D,nsnew,ns)
@@ -111,7 +105,6 @@ PROGRAM sprogram
       ns = ns + deltans
 
       ! perform cokriging, sensitivity analysis, etc. 
-      print*, func_name
       call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,D,Ns,NsNew,func_name, &
          S=S,DELTANS=deltans)
       
@@ -119,27 +112,14 @@ PROGRAM sprogram
       ! make fancy graphs
       call printer(x,y,ns,1,D,dotsfile,datadir,loopcount)
       call printer(xnew,ynew,nsnew,ngrid,D,rsfile,datadir,loopcount)
-      MeanL1 = 0.d0
-      do ii=1,NsNew
-         MeanL1 = MeanL1 + abs(ytrue(ii,1) - ynew(ii,1))
-         ! print *, '%err: ',(ytrue(ii,1) - ynew(ii,1))/ytrue(ii,1)*100
-      end do
-      write(67,*) 'ns= ',ns,', ngrid=',ngrid,'x',ngrid
-      write(67,*) '  L1 error: ', MeanL1
-      write(67,*) '  Mean L1 Error: ', MeanL1/NsNew/(maxval(ytrue(:,1))-minval(ytrue(:,1)));
-      write(67,*) ''
+      write(67, *) ns, l1error(ytrue,ynew,nsnew)
 
    enddo
 
    close(67)
-
-   MeanL1 = 0.d0
-   do ii=1,NsNew
-      MeanL1 = MeanL1 + abs(ytrue(ii,1) - ynew(ii,1))
-      ! print *, '%err: ',(ytrue(ii,1) - ynew(ii,1))/ytrue(ii,1)*100
-   end do
-   print *, 'L1 error: ', MeanL1
-   print *, 'Mean L1 Error: ', MeanL1/NsNew/(maxval(ytrue(:,1))-minval(ytrue(:,1)));
+   open(unit=67,file='loopcount.dat',status='replace')
+   write(67,*) loopcount
+   close(67)
 
 END PROGRAM
 

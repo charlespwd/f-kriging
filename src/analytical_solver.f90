@@ -40,7 +40,6 @@ module analytical_solver
       endif
 
       Y(1:NS,1) = YGRAD(1:NS,1)
-      print*, Y
       GRAD(1:NS,1:D) = YGRAD(1:NS,2:(D+1))
 
       if (present(S)) then
