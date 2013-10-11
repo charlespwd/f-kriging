@@ -35,7 +35,7 @@ PROGRAM sprogram
    allocate(xmin(d))
    allocate(xmax(d))
    call process_command_input(func_name,Ns,ngrid,xmin,xmax, & 
-      nfinal=nfinal, mode=mode) 
+      nfinal=nfinal, mode=mode,deltans=deltans) 
    nsnew = ngrid ** D
    allocate(xnew(nsnew,D))
    allocate(ynew(nsnew,1))

@@ -56,7 +56,7 @@ module utils
          narg = command_argument_count()
          ! DEFAULT VALUES
          funcname = '-d' ! by default
-         Ns = 16
+         Ns = 3 
          Ngrid = 36
          xmin = (/0.d0,0.d0/)
          xmax = (/1.d0,1.d0/)
@@ -108,7 +108,7 @@ module utils
                   case ("--deltans")
                      if (present(deltans)) then
                         i = i+1
-                        call get_command_argument(i.command)
+                        call get_command_argument(i,command)
                         read(command,'(I10)') deltans
                      else 
                         print*, 'deltans is not supported'
