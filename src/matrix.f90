@@ -40,10 +40,17 @@ module matrix
          INTEGER, INTENT(IN) :: Ns, D
          DOUBLE PRECISION, INTENT(IN) :: XMAX(D), XMIN(D)
          DOUBLE PRECISION, INTENT(INOUT) :: X(Ns,D)
-         INTEGER :: dd
+         INTEGER :: dd, ii
+
+         double precision :: mymax
 
          DO dd=1,D
-            X(:,dd) = X(:,dd) / (XMAX(dd) - XMIN(dd)) 
+            mymax = 0.d0
+            do ii=1,ns
+               mymax = mymax + X(ii,dd) * X(ii,dd)
+            enddo
+            mymax = mymax ** (0.5d0)
+            X(:,dd) = X(:,dd) / mymax 
          END DO
       END SUBROUTINE
 
