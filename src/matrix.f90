@@ -45,12 +45,7 @@ module matrix
          double precision :: mymax
 
          DO dd=1,D
-            mymax = 0.d0
-            do ii=1,ns
-               mymax = mymax + X(ii,dd) * X(ii,dd)
-            enddo
-            mymax = mymax ** (0.5d0)
-            X(:,dd) = X(:,dd) / mymax 
+            X(:,dd) = X(:,dd) / (xmax(dd) - xmin(dd))  
          END DO
       END SUBROUTINE
 
@@ -63,6 +58,15 @@ module matrix
          xmax = maxval(X)
          X = X / xmax
       end subroutine
+
+      double precision function vector_range(v, D)
+         integer,  intent(in) :: D
+         double precision, intent(in) :: v(D)
+         double precision :: vmax, vmin
+         vmax = maxval(v)
+         vmin = minval(v)
+         vector_range = vmax - vmin
+      end function
 
       !! make an identiy matrix, 
       SUBROUTINE eye(I,N)

@@ -139,7 +139,7 @@ module utils
          do ii=1,NsNew
             MeanL1 = MeanL1 + abs(ytrue(ii,1) - ynew(ii,1))
          end do
-         l1error = meanl1 / nsnew
+         l1error = meanl1 
       end function
 
       SUBROUTINE DUMPMAT(A,dim1,dim2)
