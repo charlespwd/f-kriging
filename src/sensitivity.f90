@@ -60,13 +60,17 @@ module sensitivity
                rx(jj,1) = get_rxy(theta,xnew(ii,:),x(jj,:),D,Pc)
             END DO
 
-            ! construct PSI
+            ! construct S 
             psi=0
             S(ii,1) = 0.0d0
             do jj=1,ns
+               ! psi_jj = [0,...,0,sum(grad)_jj,0,...,0]
                psi(jj,1) = gradsum(jj,1)
+               ! zeta=(F'*Rinv*F)\(F'*Rinv*Psi);
                call construct_zeta(zeta,F,Rinv,Psi,D,Ns,fdim)
+               ! DRHS = Rinv*(Psi-F*zeta);
                call construct_DRHS(DRHS,F,Rinv,Psi,zeta,D,Ns,fdim)
+               ! Si = sum (abs(fx*zeta+r'*DRHS))
                S(ii,1) = S(ii,1) + get_S_j(fx,zeta,rx,DRHS,D,Ns,fdim)
                psi(jj,1) = 0.0d0
             enddo

@@ -55,7 +55,7 @@ SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,D,Ns,NsNew,S)
    XMIN = MINVAL(XOLD,1)
 
    DO dd=1,D
-      delta(dd) = (XMAX(dd) - XMIN(dd)) * Raug
+      delta(dd) = (XMAX(dd) - XMIN(dd)) * Raug / (ns ** (1.0d0 / D))
    END DO
 
    X(1:Ns,:) = XOLD(1:Ns,:)

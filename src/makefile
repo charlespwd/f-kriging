@@ -4,8 +4,8 @@ MODULES=params.o analytical_functions.o grid.o utils.o matrix.o regression.o cor
 LDFLAGS=-I/usr/lib/lapack95_modules/ -I/usr/lib/fortarrange_header/ -lfort_arrange -llapack95 -llapack -lblas 
 BINDIR=../bin
 
-#OPT = -O3
-PROFILE=-pg #comment out if you don't want profiling
+OPT = -O3
+#PROFILE=-pg #comment out if you don't want profiling
 
 default : f.f90 $(MODULES) $(CONSTRUCT) $(ROUTINES)
 	gfortran $(PROFILE) -o ../foo f.f90 $(MODULES) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)

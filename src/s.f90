@@ -3,6 +3,7 @@ PROGRAM sprogram
    use analytical_solver, only:solver
    USE grid, only:vector_grid, columngrid, LHS, grow2d
    USE utils, only: printer, process_command_input, l1error
+   use matrix, only: vector_range
    use sequential_sampling, only : get_sampling_radius, &
       construct_density_function, samplingcriterion, sampler
    IMPLICIT NONE
@@ -21,6 +22,7 @@ PROGRAM sprogram
    double precision,allocatable :: Eest(:,:)
    double precision :: MeanL1
    double precision :: samplingRadius 
+   double precision :: maxerror
    character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat', dotsfile='d_dots.dat'
    character(len=20) :: func_name, errfile
    character(len=20) :: datadir
@@ -70,7 +72,8 @@ PROGRAM sprogram
    call printer(xnew,ytrue,nsnew,ngrid,D,truefile,datadir,loopcount)
    open(67,file=adjustl(errfile),status='replace')
    ! print error to file
-   write(67, *) ns, l1error(ytrue,ynew,nsnew)
+   maxerror = l1error(ytrue,ynew,nsnew) 
+   write(67, *) ns, l1error, l1error(ytrue,ynew,nsnew) / maxerror
    
    loopcount = 0
    ! sequential sampling loop
@@ -78,7 +81,9 @@ PROGRAM sprogram
       print*, 'ns = ', ns 
 
       ! reinit theta
-      theta = (/-1,-1/)
+      if (ns < 15) then 
+         theta = (/-1,-1/)
+      endif
            
       ! update the sampling radius because ns changed
       samplingradius = get_sampling_radius(xmin,xmax,D,ns)
@@ -112,7 +117,7 @@ PROGRAM sprogram
       ! make fancy graphs
       call printer(x,y,ns,1,D,dotsfile,datadir,loopcount)
       call printer(xnew,ynew,nsnew,ngrid,D,rsfile,datadir,loopcount)
-      write(67, *) ns, l1error(ytrue,ynew,nsnew)
+      write(67, *) ns, l1error, l1error(ytrue,ynew,nsnew) / maxerror
 
    enddo
 
