@@ -11,6 +11,7 @@
 !  YOLD (in): set of snapshot values [Ns,1]
 !  Grad (in): the gradient of Y at the snapshot locations in d'th direction [Ns,D]
 !  Raug (in): the 'radius' of the augmentation as fraction of range(X), typically 1% 
+!  Order(in): the order of the polynomial regression 
 !  D (in): # of dimensions
 !  Ns (in): # of snapshots
 !  NsNew: # of new snapshots
@@ -25,12 +26,12 @@
 ! module is here to enable optional arguments
 MODULE cokrigingmodule
    CONTAINS
-SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,D,Ns,NsNew,S)
+SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
    USE sensitivity, only: construct_sensitivity
    IMPLICIT NONE
 
    ! arguments
-   INTEGER, INTENT(IN) :: D,Ns,NsNew
+   INTEGER, INTENT(IN) :: D, Ns, NsNew, Order
    DOUBLE PRECISION, INTENT(IN) :: XOLD(Ns,D),YOLD(Ns,1) 
    DOUBLE PRECISION, INTENT(IN) :: XNEW(NsNew,D)
    DOUBLE PRECISION, INTENT(IN) :: Grad(Ns,D)
@@ -79,10 +80,10 @@ SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,D,Ns,NsNew,S)
    END DO
    
    ! perform kriging normally with new set of X and Y 
-   CALL KRIGING(XNEW,YNEW,theta,MSE,X,Y,D,Naug,NsNew)
+   CALL KRIGING(XNEW,YNEW,theta,MSE,X,Y,Order,D,Naug,NsNew)
 
    IF ( PRESENT(S) ) THEN
-      CALL construct_sensitivity(S,XNEW,YOLD,XOLD,Grad,theta,D,Ns,NsNew)
+      CALL construct_sensitivity(S,XNEW,YOLD,XOLD,Grad,theta,Order,D,Ns,NsNew)
    END IF
 END SUBROUTINE
 END MODULE

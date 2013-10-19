@@ -10,8 +10,8 @@
 !  Y(in) : the set of snapshot values
 !  D(in) : # of dimesnions in domain
 !  Ns(in) : # of snapshots
-SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
-   USE PARAMS, ONLY: ORDER, Pc, MAXCOUNT, TOL
+SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,Order,D,Ns)
+   USE PARAMS, ONLY: Pc, MAXCOUNT, TOL
    USE LA_PRECISION, ONLY:WP=>DP
    USE F95_LAPACK, ONLY:LA_GESV, LA_GESVX
    use matrix, only: eye, get_trace
@@ -20,7 +20,7 @@ SUBROUTINE optimize_theta_mle(theta,bounds,X,Y,D,Ns)
    IMPLICIT NONE
    
    ! Arguments
-   INTEGER, INTENT(IN) :: D, Ns
+   INTEGER, INTENT(IN) :: D, Ns, Order
    DOUBLE PRECISION, INTENT(IN) :: X(Ns,D), Y(Ns,1)
    DOUBLE PRECISION, INTENT(IN) :: bounds(D,2)
    DOUBLE PRECISION, INTENT(INOUT) :: theta(D)

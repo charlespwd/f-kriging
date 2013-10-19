@@ -4,7 +4,7 @@ PROGRAM f
    USE grid, only:vector_grid, columngrid, LHS
    USE utils, only: printer, process_command_input
    IMPLICIT NONE
-   integer :: D=2, Ns, NsNew, ngrid
+   integer :: D=2, Ns, NsNew, ngrid, Order
    double precision,allocatable :: xnew(:,:),ynew(:,:)
    double precision,allocatable :: x(:,:),y(:,:)
    double precision,allocatable :: xmin(:), xmax(:)
@@ -18,6 +18,8 @@ PROGRAM f
    character(len=20) :: func_name
    character(len=20) :: datadir
    integer :: ii
+
+   Order = 2
 
    datadir = 'data'
    ! set default values or get arguments from command line
@@ -49,7 +51,7 @@ PROGRAM f
    X(NS,:) = (/XMAX(1),XMAX(2)/) 
 
    theta = (/-1,-1/)
-   call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,D,Ns,NsNew,func_name)
+   call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,Order,D,Ns,NsNew,func_name)
    
    ! make fancy graphs
    call printer(x,y,ns,1,D,dotsfile,datadir)
@@ -62,6 +64,18 @@ PROGRAM f
    end do
    print *, 'L1 error: ', MeanL1
    print *, 'Mean L1 Error: ', MeanL1/NsNew
+
+   deallocate(xmin)
+   deallocate(xmax)
+   deallocate(xnew)
+   deallocate(ynew)
+   deallocate(ygrad)
+   deallocate(ytrue)
+   deallocate(x)
+   deallocate(y)
+   deallocate(grad)
+   deallocate(theta)
+   deallocate(mse)
 
 END PROGRAM
 

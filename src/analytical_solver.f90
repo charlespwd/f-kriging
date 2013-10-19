@@ -1,14 +1,14 @@
 module analytical_solver
    contains
 
-   SUBROUTINE solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,GRAD,D,Ns,NsNew,&
+   SUBROUTINE solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,GRAD,D,Order,Ns,NsNew,&
          func_name, S, deltans)
       USE PARAMS, ONLY: Raug
       USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
       use cokrigingmodule, only:cokriging
       IMPLICIT NONE
       ! arguments
-      INTEGER, INTENT(IN) :: D,Ns,NsNew
+      INTEGER, INTENT(IN) :: D,Ns,NsNew,Order
       integer, intent(in), optional :: deltans
       DOUBLE PRECISION, INTENT(IN) :: XNEW(NSNEW,D)
       DOUBLE PRECISION, INTENT(IN) :: XMIN(D), XMAX(D)
@@ -43,9 +43,9 @@ module analytical_solver
       GRAD(1:NS,1:D) = YGRAD(1:NS,2:(D+1))
 
       if (present(S)) then
-         CALL COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,D,Ns,NsNew,S)
+         CALL COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew,S)
       else 
-         CALL COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,D,Ns,NsNew)
+         CALL COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew)
       endif
 
    END SUBROUTINE

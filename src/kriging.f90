@@ -10,6 +10,7 @@
 !  MSE:   the built-in error estimator
 !  XOLD:  the set of original snapshot positions
 !  Y:     the set of original snapshot values
+!  Order: the order of the polynomial regression used. 
 !  D:     the # of dimesions in the domain
 !  Ns:    the # of snapshots
 !  NewNs: the # of new snapshot locations
@@ -32,8 +33,8 @@
 !  And that's all there is to it, getting the theta is a bit complicated but you
 !   are invited to read the paper by Lappo for the details on the iterative MLE
 !   solver. See optimize_theta_mle for implementation. 
-SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
-   USE PARAMS, ONLY: Pc, Order
+SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,Order,D,Ns,NewNs)
+   USE PARAMS, ONLY: Pc
    use matrix, only: rescale
    use regression, only: construct_fmat
    use correlation, only : construct_r
@@ -41,7 +42,7 @@ SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
    IMPLICIT NONE
    
    ! ARGUMENTS
-   INTEGER, INTENT(IN) :: D,Ns,NewNs
+   INTEGER, INTENT(IN) :: D, Ns, NewNs, Order
    DOUBLE PRECISION, INTENT(IN) :: XOLD(Ns,D)      ! unscaled set of snapshots
    DOUBLE PRECISION, INTENT(IN) :: XNEW(NewNs,D)   ! unscaled set of untried loc
    DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)         ! set of snapshot values
@@ -70,11 +71,11 @@ SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
    CALL init_theta(theta,bounds,X,D,Ns)
 
    ! optimize theta with iterative MLE
-   CALL optimize_theta_mle(theta,bounds,X,Y,D,Ns)
+   CALL optimize_theta_mle(theta,bounds,X,Y,Order,D,Ns)
 
    ! construct F, R
    CALL construct_fmat(F,X,Order,D,Ns)
    CALL construct_R(R,theta,X,D,Ns,Pc)
 
-   CALL construct_kriging_RS(YNEW,XN,MSE,Y,X,F,R,theta,D,Ns,NewNs)
+   CALL construct_kriging_RS(YNEW,XN,MSE,Y,X,F,R,theta,Order,D,Ns,NewNs)
 END SUBROUTINE

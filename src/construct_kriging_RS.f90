@@ -5,8 +5,8 @@
 ! construct_kriging_rs
 !  this routine makes a response surface assuming the theta is fixed.
 !  it also calculates the MSE error at XNEW locations.
-SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
-   USE PARAMS, ONLY:Order,Pc
+SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,Order,D,Ns,NsNew)
+   USE PARAMS, ONLY:Pc
    USE matrix, only: eye
    use correlation, only: invertr,get_rxy
    use regression, only: construct_f
@@ -14,7 +14,7 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
    IMPLICIT NONE
 
    ! ARGUMENTS
-   INTEGER, INTENT(IN) :: D,Ns,NsNew
+   INTEGER, INTENT(IN) :: D, Ns, NsNew, Order
    DOUBLE PRECISION, INTENT(IN) :: X(Ns,D), XNEW(NsNew,D)
    DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)
    DOUBLE PRECISION, INTENT(IN) :: F(NS,1+Order*D)

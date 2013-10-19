@@ -3,7 +3,7 @@ module sensitivity
    use la_precision, only:wp=>dp
    use f95_lapack, only:LA_GESV
    use matrix, only : eye, normalize
-   USE PARAMS, ONLY:Order,Pc
+   USE PARAMS, ONLY:Pc
    use correlation, only:get_rxy,invertr,construct_R
    use regression, only:construct_f,construct_fmat
 
@@ -11,11 +11,11 @@ module sensitivity
 
    contains
       ! construct the sensitivity vectort
-      SUBROUTINE construct_sensitivity(S,XNEW,Y,X,Grad,theta,D,Ns,NsNew)
+      SUBROUTINE construct_sensitivity(S,XNEW,Y,X,Grad,theta,Order,D,Ns,NsNew)
          IMPLICIT NONE
 
          ! ARGUMENTS
-         INTEGER, INTENT(IN) :: D,Ns,NsNew
+         INTEGER, INTENT(IN) :: D, Ns, NsNew, Order
          DOUBLE PRECISION, INTENT(IN) :: X(Ns,D), XNEW(NsNew,D)
          DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)
          double precision, intent(in) :: Grad(Ns,D)
