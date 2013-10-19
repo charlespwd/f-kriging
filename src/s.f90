@@ -73,7 +73,7 @@ PROGRAM sprogram
    open(67,file=adjustl(errfile),status='replace')
    ! print error to file
    maxerror = l1error(ytrue,ynew,nsnew) 
-   write(67, *) ns, l1error, l1error(ytrue,ynew,nsnew) / maxerror
+   write(67, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
    
    loopcount = 0
    ! sequential sampling loop
@@ -117,7 +117,7 @@ PROGRAM sprogram
       ! make fancy graphs
       call printer(x,y,ns,1,D,dotsfile,datadir,loopcount)
       call printer(xnew,ynew,nsnew,ngrid,D,rsfile,datadir,loopcount)
-      write(67, *) ns, l1error, l1error(ytrue,ynew,nsnew) / maxerror
+      write(67, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
 
    enddo
 

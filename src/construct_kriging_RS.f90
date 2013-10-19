@@ -24,7 +24,7 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
    DOUBLE PRECISION, INTENT(OUT) :: MSE(nsnew)
 
    ! Functions
-   DOUBLE PRECISION :: get_mse
+   DOUBLE PRECISION :: martinmse, get_mse
 
    ! Work variables
    DOUBLE PRECISION :: Rinv(Ns,Ns), I(Ns,Ns)
@@ -69,7 +69,7 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,D,Ns,NsNew)
       CALL DGEMM('t','n',1,1,ns,1.0d0,rx,Ns,RinvYmFb,Ns,1.0d0,res,1)
       YNEW(ii,1) = res(1,1)
 
-      MSE(ii) = get_mse(sigma2,F,Rinv,rx,D,Ns,fdim)
+      MSE(ii) = martinmse(sigma2, fx, rx, F, R, ns, fdim)
    END DO 
 END SUBROUTINE
 
@@ -126,3 +126,44 @@ double precision function get_mse(sigma2,F,Rinv,rx,D,Ns,fdim)
    term3 = term3 * term4
    get_mse = abs(sigma2 * (term1 - term2 + term3))
 end function 
+
+ ! sigma2 * (1 - [ft(x); rt(x)]**T * [ 0 Ft ; F R] * [f(x); r(x)]) 
+double precision function martinmse(sigma2, fx, rx, F, R, ns, fdim)
+   implicit none
+   integer, intent(in) :: fdim, ns
+   double precision, intent(in) :: sigma2
+   double precision, intent(in) :: fx(fdim,1), rx(ns,1)
+   double precision, intent(in) :: F(ns,fdim), R(ns,ns)
+   ! work variables
+   double precision :: Ft(fdim,ns)
+   double precision :: fxrx(fdim+ns,1)
+   double precision :: ctrblock(fdim+ns,fdim+ns)
+   double precision :: tmp(1,fdim+ns)
+   double precision :: res(1,1)
+   integer :: ii, jj
+   fxrx(1:fdim,1) = fx(1:fdim,1)
+   fxrx(fdim+1:ns,1) = rx(1:ns,1)
+   Ft = transpose(F)
+
+   ! construct [0 Ft; F R]
+   !  0
+   ctrblock(1:fdim,1:fdim) = 0.d0
+   !  F
+   ctrblock(fdim+1:fdim+ns, 1:fdim) = F(1:ns,1:fdim)
+   !  Ft 
+   ctrblock(1:fdim, fdim+1:fdim+ns) = Ft(1:fdim,1:ns)
+   !  R
+   ctrblock(fdim+1:fdim+ns, fdim+1:fdim+ns) = R(1:ns,1:ns)
+
+   ! tmp = fxrx**T * cntrblock 
+   ! [1,fdim+ns] = [fdim+ns,1] ** T * [fdim+ns,fdim+ns]
+   call dgemm('t','n',1,fdim+ns,fdim+ns,1.0d0, fxrx,fdim+ns, &
+      ctrblock,fdim+ns, 0.0d0,tmp,1)
+
+   ! res = (-1.0d0) * tmp * fxrx + 1.0d0 * res
+   res(1,1) = 1.0d0
+   call dgemm('n','n',1,1,fdim+ns,(-1.0d0), tmp,1, fxrx,fdim+ns, &
+      1.0d0, res,1)
+   
+   martinmse = sigma2 * res(1,1)
+end function
