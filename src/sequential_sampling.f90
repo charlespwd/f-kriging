@@ -131,9 +131,6 @@ module sequential_sampling
          integer :: ii
 
          wmse = mse
-         do ii=1,10
-            print*, 'wmse', wmse(ii,1)
-         enddo
          call normalize(wmse(:,1),nsnew)
 
          if(present(s)) then
@@ -157,7 +154,6 @@ module sequential_sampling
             end select
          enddo
          call normalize(eest,nsnew)
-
       end subroutine
 
       ! construct_insertion_stack
@@ -173,6 +169,9 @@ module sequential_sampling
          construct_insertion_stack(1:ns,1) = eest(1:ns,1)
          construct_insertion_stack(1:ns,2) = (/(i,i=1,ns)/)
          call sort(construct_insertion_stack)
+         do ii=1,10
+            print*, 'sorted eest', construct_insertion_stack(ii,1)
+         enddo
       end function
 end module
 

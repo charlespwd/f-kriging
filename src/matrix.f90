@@ -54,16 +54,32 @@ module matrix
          integer, intent(in) :: m
          double precision, intent(inout) :: X(m)
          double precision :: xmax 
-         integer :: ii
+         integer :: ii, signs
+         signs = -2 !  inited
          do ii=1,m
-            if (X(ii) < 0) then
-               print*, 'Using normalize incorrectly, it should normalize a &
-               positive vector and the vector that was passed has negative &
-               values in it.'
-               stop
-            endif
+            if (X(ii) > 0) then
+               if (signs == -1) then
+                  signs = 0 ! mixed
+                  exit 
+               else 
+                  signs = 1 ! positive
+               endif
+            else if (X(ii) < 0) then
+               if (signs == 1) then 
+                  signs = 0 ! mixed
+                  exit
+               else
+                 signs = -1
+               endif
+            endif 
          enddo
-         xmax = maxval(X)
+         if (signs == 0) then
+            print*, 'mixed signs, bad'
+         elseif (signs == 1) then
+            xmax = maxval(X)
+         elseif (signs == -1) then
+            xmax = minval(X)
+         endif
          X = X / xmax
       end subroutine
 
