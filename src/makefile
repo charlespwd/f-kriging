@@ -1,6 +1,6 @@
 ROUTINES=kriging.o cokriging.o analytical_solver.o 
 CONSTRUCT=construct_kriging_RS.o
-MODULES=params.o analytical_functions.o grid.o utils.o matrix.o regression.o correlation.o sensitivity.o mle.o  sequential_sampling.o
+MODULES=params.o analytical_functions.o grid.o utils.o matrix.o regression.o correlation.o sensitivity.o mle.o  sequential_sampling.o error.o
 LDFLAGS=-I/usr/lib/lapack95_modules/ -I/usr/lib/fortarrange_header/ -lfort_arrange -llapack95 -llapack -lblas 
 BINDIR=../bin
 

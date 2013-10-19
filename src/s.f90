@@ -7,7 +7,7 @@ PROGRAM sprogram
    use sequential_sampling, only : get_sampling_radius, &
       construct_density_function, samplingcriterion, sampler
    IMPLICIT NONE
-   integer :: D=2, Ns, NsNew, ngrid, deltans, nfinal, loopcount, mode
+   integer :: D=2, Ns, NsNew, ngrid, deltans, nfinal, loopcount, mode, Order
    integer,allocatable :: newsamples(:)
    double precision,allocatable :: xnew(:,:),ynew(:,:)
    double precision,allocatable :: x(:,:),y(:,:)
@@ -33,11 +33,12 @@ PROGRAM sprogram
    nfinal=30
    loopcount = 0
    datadir = 'data'
+   Order=0 !default value
    ! set default values or get arguments from command line
    allocate(xmin(d))
    allocate(xmax(d))
    call process_command_input(func_name,Ns,ngrid,xmin,xmax, & 
-      nfinal=nfinal, mode=mode,deltans=deltans) 
+      nfinal=nfinal, mode=mode,deltans=deltans, Order=Order) 
    nsnew = ngrid ** D
    allocate(xnew(nsnew,D))
    allocate(ynew(nsnew,1))
@@ -63,7 +64,7 @@ PROGRAM sprogram
    theta = (/-1,-1/)
    ns = ns ** D
    ! perform cokriging, sensitivity analysis, etc. 
-   call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,Grad,D,Ns,NsNew,func_name,&
+   call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,Grad,Order,D,Ns,NsNew,func_name,&
       S=S) 
 
     ! make fancy graphs
@@ -108,9 +109,9 @@ PROGRAM sprogram
       
       ! increment number of snapshots
       ns = ns + deltans
-
+      
       ! perform cokriging, sensitivity analysis, etc. 
-      call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,D,Ns,NsNew,func_name, &
+      call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,Order,D,Ns,NsNew,func_name, &
          S=S,DELTANS=deltans)
       
       loopcount = loopcount+1

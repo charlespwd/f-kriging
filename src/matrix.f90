@@ -55,6 +55,14 @@ module matrix
          double precision, intent(inout) :: X(m)
          double precision :: xmax 
          integer :: ii
+         do ii=1,m
+            if (X(ii) < 0) then
+               print*, 'Using normalize incorrectly, it should normalize a &
+               positive vector and the vector that was passed has negative &
+               values in it.'
+               stop
+            endif
+         enddo
          xmax = maxval(X)
          X = X / xmax
       end subroutine

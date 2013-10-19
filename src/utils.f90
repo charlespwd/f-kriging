@@ -44,11 +44,12 @@ module utils
       end subroutine
 
       subroutine process_command_input(funcname,Ns,Ngrid,xmin,xmax,nfinal, &
-            mode,deltans)
+            mode,deltans, order)
          integer :: ns, nsnew, ngrid
          integer, intent(inout), optional :: nfinal
          integer, intent(inout), optional :: mode !! mse=0, sensitivy=1
          integer, intent(inout), optional :: deltans
+         integer, intent(inout), optional :: order
          character(len=20), intent(out) :: funcname
          double precision, dimension(2) :: xmin,xmax
          integer :: narg, i
@@ -114,6 +115,16 @@ module utils
                         print*, 'deltans is not supported'
                         STOP
                      endif
+                  case ("--order","-o")
+                     if (present(order)) then
+                        i = i+1
+                        call get_command_argument(i,command)
+                        read(command,'(I10)') order
+                     else 
+                        print*, 'order was not passed'
+                        STOP
+                     endif
+
                   case ("-m","--mse")
                      if (present(mode)) then
                         mode = m_MSE

@@ -26,6 +26,7 @@ module sequential_sampling
 
          ! sort errors in ascending order, and have the index map in the 
          ! second column
+         
          errorstack = construct_insertion_stack(eest,nsnew)
 
          ! check the errorstack from then end to the beginning
@@ -130,7 +131,11 @@ module sequential_sampling
          integer :: ii
 
          wmse = mse
+         do ii=1,10
+            print*, 'wmse', wmse(ii,1)
+         enddo
          call normalize(wmse(:,1),nsnew)
+
          if(present(s)) then
             ws = s
             call normalize(ws(:,1),nsnew)
@@ -139,19 +144,20 @@ module sequential_sampling
          do ii=1,nsnew         
          select case (mode) 
                case(m_MSE) 
-                  Eest(ii,1) = MSE(ii,1) 
+                  Eest(ii,1) = WMSE(ii,1) 
                case(m_SENSITIVITY)
                   if ( .not. present(S)) then
                      print*, 'in sampling criterion, S not present'
                      stop
                   endif
-                  Eest(ii,1) = (MSE(ii,1)+S(ii,1)) * psi(ii,1)
+                  Eest(ii,1) = (wMSE(ii,1)+wS(ii,1)) * psi(ii,1)
                case default
                   print*, 'mode not recognized'
                   stop
             end select
          enddo
          call normalize(eest,nsnew)
+
       end subroutine
 
       ! construct_insertion_stack
@@ -162,11 +168,11 @@ module sequential_sampling
       function construct_insertion_stack(eest,ns) 
          integer, intent(in) :: ns
          double precision, intent(in) :: eest(ns,1)
-         double precision :: construct_insertion_stack(ns,2)
+         double precision,dimension(ns,2) :: construct_insertion_stack
          integer :: i
          construct_insertion_stack(1:ns,1) = eest(1:ns,1)
          construct_insertion_stack(1:ns,2) = (/(i,i=1,ns)/)
-         call sort(construct_insertion_stack,1)
+         call sort(construct_insertion_stack)
       end function
 end module
 

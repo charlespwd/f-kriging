@@ -1,7 +1,7 @@
 module analytical_solver
    contains
 
-   SUBROUTINE solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,GRAD,D,Order,Ns,NsNew,&
+   SUBROUTINE solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,GRAD,Order,D,Ns,NsNew,&
          func_name, S, deltans)
       USE PARAMS, ONLY: Raug
       USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
