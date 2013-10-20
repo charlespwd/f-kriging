@@ -67,7 +67,7 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,Order,D,Ns,NsNew)
       CALL DGEMM('t','n',1,1,ns,1.0d0,rx,Ns,RinvYmFb,Ns,1.0d0,res,1)
       YNEW(ii,1) = res(1,1)
 
-      MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim)
+      MSE(ii) = get_mse(sigma2,F,Rinv,rx,D,Ns,fdim)
    END DO 
 END SUBROUTINE
 
