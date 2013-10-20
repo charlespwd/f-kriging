@@ -80,11 +80,6 @@ PROGRAM sprogram
    ! sequential sampling loop
    do while (ns<=nfinal)
       print*, 'ns = ', ns 
-
-      ! reinit theta
-      if (ns < 15) then 
-         theta = (/-1,-1/)
-      endif
            
       ! update the sampling radius because ns changed
       samplingradius = get_sampling_radius(xmin,xmax,D,ns)

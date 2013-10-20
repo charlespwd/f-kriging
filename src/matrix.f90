@@ -53,33 +53,10 @@ module matrix
       subroutine normalize(X,m)
          integer, intent(in) :: m
          double precision, intent(inout) :: X(m)
-         double precision :: xmax 
+         double precision :: xmax,xmin
          integer :: ii, signs
-         signs = -2 !  inited
-         do ii=1,m
-            if (X(ii) > 0) then
-               if (signs == -1) then
-                  signs = 0 ! mixed
-                  exit 
-               else 
-                  signs = 1 ! positive
-               endif
-            else if (X(ii) < 0) then
-               if (signs == 1) then 
-                  signs = 0 ! mixed
-                  exit
-               else
-                 signs = -1
-               endif
-            endif 
-         enddo
-         if (signs == 0) then
-            print*, 'mixed signs, bad'
-         elseif (signs == 1) then
-            xmax = maxval(X)
-         elseif (signs == -1) then
-            xmax = minval(X)
-         endif
+         X = ABS(X)
+         xmax = maxval(X)
          X = X / xmax
       end subroutine
 
