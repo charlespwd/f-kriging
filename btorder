@@ -3,7 +3,7 @@ nfinal=100
 deltans=4
 ns=3
 order=2
-imgpath="/home/charles/w-reports/tr/oc4"
+imgpath="./data"
 
 rm -f ./data/*.png ./data/e*.dat
 
