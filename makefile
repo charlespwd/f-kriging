@@ -1,7 +1,7 @@
 default: 
 	cd src; make
 
-sensitivity:
+sequential:
 	cd src; make sensitivity
 
 clear :

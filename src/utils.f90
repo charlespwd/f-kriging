@@ -58,7 +58,8 @@ module utils
          ! DEFAULT VALUES
          funcname = '-d' ! by default
          Ns = 3 
-         Ngrid = 36
+         Ngrid = 40
+         Nfinal = 30
          xmin = (/0.d0,0.d0/)
          xmax = (/1.d0,1.d0/)
          ! mode default value
@@ -124,7 +125,6 @@ module utils
                         print*, 'order was not passed'
                         STOP
                      endif
-
                   case ("-m","--mse")
                      if (present(mode)) then
                         mode = m_MSE
@@ -132,6 +132,41 @@ module utils
                         print*, 'mode is not supported'
                         STOP
                      endif
+                  case ("-h","--help") 
+                     print*, "SYNOPSIS"
+                     print*, "     ./bar [options]"
+                     print*, ""
+                     print*, "DESCRIPTION"
+                     print*, "      -b, --branin"
+                     print*, "            use the branin function"
+                     print*, "      -c, --cosine"
+                     print*, "            use the cosine function"
+                     print*, "      -d, --drag"
+                     print*, "            use the drag function, by default"
+                     print*, "      --deltans"
+                     print*, "            set the number of points to be added &
+                        between every sampling iterations."
+                     print*, "      -m, --mse"
+                     print*, "            set the sampling criterion to be &
+                        strictly mse, by default"
+                     print*, "      --ngrid"
+                     print*, "            set the number of points per &
+                        dimension in the grid, default 40"
+                     print*, "      --nfinal"
+                     print*, "            set the maximum number of snapshots &
+                        to be included in the set."
+                     print*, "      --ns"
+                     print*, "            set the initial number of snapshots per &
+                        dimension, default 3 (for 3x3 initial grid)"
+                     print*, "      -o, --order"
+                     print*, "            set the order of the regression, default 0"
+                     print*, "      -s, --sensitivity"
+                     print*, "            set the sampling criterion to be &
+                       using the sensitivity analysis"
+                     print*, ""
+                     print*, "AUTHOR"
+                     print*, "      Written by Charles-Philippe Clermont"  
+                     STOP
                   case default
                      write(*,*) 'option "',trim(command),'" not supported' 
                      STOP
