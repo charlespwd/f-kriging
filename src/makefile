@@ -1,16 +1,16 @@
-ROUTINES=kriging.o cokriging.o analytical_solver.o 
-CONSTRUCT=construct_kriging_RS.o
-MODULES=params.o analytical_functions.o grid.o utils.o matrix.o regression.o correlation.o sensitivity.o mle.o  sequential_sampling.o error.o
+MODULES= params.o analytical_functions.o grid.o matrix.o error.o utils.o \
+	regression.o correlation.o sensitivity.o mle.o  sequential_sampling.o \
+  	kriging.o cokriging.o analytical_solver.o
 LDFLAGS=-I/usr/lib/lapack95_modules/ -I/usr/lib/fortarrange_header/ -lfort_arrange -llapack95 -llapack -lblas 
 BINDIR=../bin
 
 OPT = -O3
 #PROFILE=-pg #comment out if you don't want profiling
 
-default : f.f90 $(MODULES) $(CONSTRUCT) $(ROUTINES)
+default : f.f90 $(MODULES) 
 	gfortran $(PROFILE) -o ../foo f.f90 $(MODULES) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)
 
-sensitivity : s.f90 $(MODULES) $(CONSTRUCT) $(ROUTINES)
+sensitivity : s.f90 $(MODULES) 
 	gfortran $(PROFILE) -o ../bar s.f90 $(MODULES) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)
 
 %.o : %.f90

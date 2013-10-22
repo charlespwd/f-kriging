@@ -7,5 +7,6 @@ MODULE PARAMS
    INTEGER, PARAMETER :: ORDER = 2 ! order of the regression 
    INTEGER, PARAMETER :: Pc = 2    ! power of the correlation (2=gaussian)
    DOUBLE PRECISION, PARAMETER :: PI = 4.D0*DATAN(1.D0)
+   INTEGER :: MSEMODE
 END MODULE
 

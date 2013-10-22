@@ -3,6 +3,8 @@ PROGRAM sprogram
    use analytical_solver, only:solver
    USE grid, only:vector_grid, columngrid, LHS, grow2d
    USE utils, only: printer, process_command_input, l1error
+   use params, only : msemode
+   use error, only: mode_lophaven
    use matrix, only: vector_range
    use sequential_sampling, only : get_sampling_radius, &
       construct_density_function, samplingcriterion, sampler
@@ -34,6 +36,8 @@ PROGRAM sprogram
    loopcount = 0
    datadir = 'data'
    Order=0 !default value
+   msemode=mode_lophaven
+
    ! set default values or get arguments from command line
    allocate(xmin(d))
    allocate(xmax(d))

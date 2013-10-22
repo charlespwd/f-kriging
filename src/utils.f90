@@ -45,6 +45,8 @@ module utils
 
       subroutine process_command_input(funcname,Ns,Ngrid,xmin,xmax,nfinal, &
             mode,deltans, order)
+         use params, only : msemode
+         use error, only : mode_arthur, mode_lophaven, mode_martin
          integer :: ns, nsnew, ngrid
          integer, intent(inout), optional :: nfinal
          integer, intent(inout), optional :: mode !! mse=0, sensitivy=1
@@ -99,13 +101,6 @@ module utils
                         print*, 'nfinal is not supported'
                         STOP 
                      endif
-                  case ("-s","--sensitivity")
-                     if (present(mode)) then
-                        mode = m_SENSITIVITY
-                     else 
-                        print*, 'mode is not supported'
-                        STOP
-                     endif
                   case ("--deltans")
                      if (present(deltans)) then
                         i = i+1
@@ -124,7 +119,19 @@ module utils
                         print*, 'order was not passed'
                         STOP
                      endif
-
+                  case("--msearthur") 
+                     msemode = mode_arthur
+                  case("--msemartin")
+                     msemode = mode_martin
+                  case("--mselophaven")
+                     msemode = mode_lophaven
+                  case ("-s","--sensitivity")
+                     if (present(mode)) then
+                        mode = m_SENSITIVITY
+                     else 
+                        print*, 'mode is not supported'
+                        STOP
+                     endif
                   case ("-m","--mse")
                      if (present(mode)) then
                         mode = m_MSE

@@ -1,5 +1,8 @@
 module error
    implicit none
+   integer, parameter :: MODE_ARTHUR = 0
+   integer, parameter :: MODE_MARTIN = 1
+   integer, parameter :: MODE_LOPHAVEN = 2
    contains
 !! 
 ! get_mse
