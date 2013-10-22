@@ -1,0 +1,38 @@
+#bin/bash
+nfinal=100
+deltans=4
+ns=3
+order=2
+imgpath="/home/charles/w-reports/tr/oc4"
+
+rm -f ./data/*.png ./data/e*.dat
+
+for func in "branin" "cosine" "drag"
+do
+	for order in 0 2
+	do
+		for mse in "arthur" "martin" "lophaven"
+		do
+			for mode in "mse" "sensitivity" 
+			do
+				echo "$func $order $mse $mode"
+				nice -n -20 ./bar --"$func" --ngrid 40 --ns "$ns" --nfinal "$nfinal" --deltans "$deltans" --"$mode" --order "$order" --mse"$mse"
+				loopcount=`cat loopcount.dat`
+				cd data; 
+				sudo rm -fr $imgpath/$func$mode*.png
+				gnuplot -e "imgpath='$imgpath'; funcname='$func$mode$mse'; nmax=$loopcount; order=$order" g.gp  
+				sudo tar -cvf archive.tar d*.dat*
+				sudo mv -f archive.tar "$imgpath/$func-$mode-$mse-$order.tar"
+				cd ..
+				mv ./data/e.dat "./data/e$func$mode$order$mse.dat"
+			done
+		done
+		cd data; 
+		sudo tar -cvf archive.tar e*.dat
+		sudo mv -f archive.tar "$imgpath/errors-$func-$order.tar"
+		gnuplot -e "imgpath='$imgpath'; funcname='$func'; order=$order" error.gp  
+		cd ..
+	done
+done
+
+
