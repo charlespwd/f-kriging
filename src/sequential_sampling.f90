@@ -15,7 +15,7 @@ module sequential_sampling
       ! sampler - finds the indexes of the points with the largest error
       !   and that is not within radius of the old points or the newly added
       !   points
-      subroutine sampler(newsamples,Eest,XNEW,XOLD,Radius,deltaNs,D,nsnew,ns)
+      SUBROUTINE sampler(newsamples,Eest,XNEW,XOLD,Radius,deltaNs,D,nsnew,ns)
          integer, intent(in) :: deltaNs,D,nsnew,ns
          integer, intent(out) :: newsamples(deltaNs)
          double precision, intent(in) :: Eest(nsnew,1),Xnew(nsnew,D),Xold(ns,D)
@@ -61,7 +61,7 @@ module sequential_sampling
             endif
           
          enddo      
-      end subroutine
+      end SUBROUTINE
 
       ! get the sampling radius as per defined in Arthur's paper
       double precision function get_sampling_radius(xmin,xmax,D,ns)
@@ -85,7 +85,7 @@ module sequential_sampling
       !  so that this density function is 0 at snapshot locations
       !  and more than that everywhere else
       !  the result is 'normalized'
-      subroutine construct_density_function(Psi,Xnew,X,XMAX,XMIN,D,nsnew,ns)
+      SUBROUTINE construct_density_function(Psi,Xnew,X,XMAX,XMIN,D,nsnew,ns)
          ! arguments
          integer, intent(in) :: nsnew, ns, d
          double precision, intent(in) :: Xnew(nsnew,D), X(ns,D)
@@ -112,14 +112,14 @@ module sequential_sampling
             Psi(ii,1) = 1.0d0 - exp(-mindist)
          enddo
          call normalize(psi(:,1),nsnew)
-      end subroutine
+      end SUBROUTINE
 
       ! calculates the sampling criterion 
       ! S and CV are optional parameters
       ! S takes priority over CV. So if you want CV, make sure to 
       ! call samplingcriterion(Eest,MSE,nsnew,Psi,CV=CV)
       ! psi is the density function as called here.
-      subroutine samplingcriterion(Eest,MSE,nsnew,PSI,mode,S)
+      SUBROUTINE samplingcriterion(Eest,MSE,nsnew,PSI,mode,S)
          integer,intent(in) :: nsnew
          integer, intent(in) :: mode
          double precision, intent(in) :: MSE(nsnew,1)
@@ -154,7 +154,7 @@ module sequential_sampling
             end select
          enddo
          call normalize(eest,nsnew)
-      end subroutine
+      end SUBROUTINE
 
       ! construct_insertion_stack
       !  this function constructs an array where the first column

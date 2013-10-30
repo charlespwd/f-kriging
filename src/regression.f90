@@ -11,20 +11,20 @@ module regression
       ! output:
       !  f(x): [1, x_1^1, ...]
       SUBROUTINE construct_f(f,x,Order,D,Ns)
-         IMPLICIT NONE
-         INTEGER :: Order, D, Ns
-         INTEGER :: oo,dd,i
-         DOUBLE PRECISION :: f(1 + Order*D)
-         DOUBLE PRECISION :: x(D)
+         implicit none
+         integer :: Order, D, Ns
+         integer :: oo,dd,i
+         double precision :: f(1 + Order*D)
+         double precision :: x(D)
          i = 2;
          f(1) = 1.0D0;
-         DO oo=1,Order
-            DO dd=1,D
+         do oo=1,Order
+            do dd=1,D
                f(i) = x(dd) ** oo
                i = i + 1
-            END DO
-         END DO
-      END SUBROUTINE
+            end do
+         end do
+      end SUBROUTINE
 
       !! 
       ! This function builds the regression matrix F.
@@ -44,13 +44,13 @@ module regression
       ! Output:
       !  F: The regression matrix without the coefficients. 
       SUBROUTINE construct_fmat(F,snap_pos,Order,D,Ns)
-         IMPLICIT NONE
-         INTEGER :: Order, D, Ns
-         INTEGER :: nn
-         DOUBLE PRECISION :: F(Ns,1 + Order*D)
-         DOUBLE PRECISION :: snap_pos(Ns,D)
-         DO nn=1,Ns
+         implicit none
+         integer :: Order, D, Ns
+         integer :: nn
+         double precision :: F(Ns,1 + Order*D)
+         double precision :: snap_pos(Ns,D)
+         do nn=1,Ns
             call construct_f(F(nn,:),snap_pos(nn,:),Order,D,Ns)
-         END DO
-      END SUBROUTINE
+         end do
+      end SUBROUTINE
 end module

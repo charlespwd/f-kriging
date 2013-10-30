@@ -1,9 +1,9 @@
-PROGRAM f
+program f
    use analytical_functions, only: y_gradient
    use analytical_solver, only: solver
-   USE grid, only:vector_grid, columngrid, LHS
-   USE utils, only: printer, process_command_input
-   IMPLICIT NONE
+   use grid, only:vector_grid, columngrid, LHS
+   use utils, only: printer, process_command_input
+   implicit none
    integer :: D=2, Ns, NsNew, ngrid, Order
    double precision,allocatable :: xnew(:,:),ynew(:,:)
    double precision,allocatable :: x(:,:),y(:,:)
@@ -77,6 +77,6 @@ PROGRAM f
    deallocate(theta)
    deallocate(mse)
 
-END PROGRAM
+end program
 
 

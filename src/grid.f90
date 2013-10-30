@@ -2,7 +2,7 @@
 ! This module contains (at a high level)
 !  vector_grid(X,LINSPACES,D,NGrid) - makes a long grid vector, (e.g. snap_pos)
 !  lhs(Xmin,Xmax,D,Ns) - makes an LHS of the domain 
-MODULE grid
+module grid
    implicit none
 
    contains
@@ -23,14 +23,14 @@ MODULE grid
          integer :: counts(D), i, row
          counts = 1
          row = 1 
-         DO WHILE(counts(1) .le. ngrid)
+         do while(counts(1) .le. ngrid)
             do i = 1,D
                X(row,i) = LINSPACES(counts(i),i)
             end do
             row = row + 1
             counts = countplusplus(counts,D,ngrid)
          end do
-      end subroutine
+      end SUBROUTINE
       
       recursive function countplusplus(counts,D,ngrid) result(results)
          integer :: D,ngrid
@@ -54,26 +54,26 @@ MODULE grid
          end if 
       end function
 
-      FUNCTION LHS(XMIN,XMAX,D,Ns)
-         IMPLICIT NONE
-         INTEGER, INTENT(IN) :: D, Ns
-         DOUBLE PRECISION, INTENT(IN) :: xmin(D), xmax(D)
-         DOUBLE PRECISION, DIMENSION(NS,D) :: LHS
+      function LHS(XMIN,XMAX,D,Ns)
+         implicit none
+         integer, intent(in) :: D, Ns
+         double precision, intent(in) :: xmin(D), xmax(D)
+         double precision, dimension(NS,D) :: LHS
 
-         INTEGER :: idx(Ns,1)
-         DOUBLE PRECISION :: ran(NS,D), P(Ns,1) 
+         integer :: idx(Ns,1)
+         double precision :: ran(NS,D), P(Ns,1) 
          integer :: ii
 
-         CALL init_random_seed()
-         CALL RANDOM_NUMBER(ran)
+         call init_random_seed()
+         call RANDOM_NUMBER(ran)
 
-         DO ii=1,D
-            CALL rperm(Ns,idx(1:Ns,1))
+         do ii=1,D
+            call rperm(Ns,idx(1:Ns,1))
             P(1:Ns,1) = (idx(1:Ns,1)-ran(1:Ns,ii))/Ns
             LHS(1:Ns,ii) = xmin(ii) + P(1:Ns,1) * (XMAX(ii) - XMIN(ii))
-         END DO
+         end do
             
-      END FUNCTION
+      end function
 
       ! creates a linearly spaced vector spanning xmin to xmax
       function linspace(xmin,xmax,n)
@@ -85,7 +85,7 @@ MODULE grid
       end function
 
       ! makes a grid for xnew (linear lhs)
-      subroutine columngrid(xnew,xmin,xmax,d,ngrid)
+      SUBROUTINE columngrid(xnew,xmin,xmax,d,ngrid)
          implicit none
          integer, intent(in) :: d, ngrid
          double precision, intent(in) :: xmin(d), xmax(d)
@@ -99,7 +99,7 @@ MODULE grid
             linspaces(1:ngrid,ii) = tmpspace(1:ngrid,1)
          enddo
          call vector_grid(xnew,linspaces,D,ngrid)
-      end subroutine
+      end SUBROUTINE
 
       ! from the web
       SUBROUTINE init_random_seed()
@@ -148,37 +148,37 @@ MODULE grid
             end if
          end if
          call random_seed(put=seed)
-      end subroutine init_random_seed
+      end SUBROUTINE init_random_seed
 
       ! Knuth shuffle, from the web
       SUBROUTINE RPERM(N, P)
 
-         INTEGER, INTENT(IN) :: N
-         INTEGER, DIMENSION(:), INTENT(OUT) :: P
+         integer, intent(in) :: N
+         integer, dimension(:), intent(out) :: P
 
-         INTEGER :: I
-         INTEGER :: K, J, IPJ, ITEMP, M
-         DOUBLE PRECISION, DIMENSION(100) :: U
+         integer :: I
+         integer :: K, J, IPJ, ITEMP, M
+         double precision, dimension(100) :: U
 
          P = (/ (I, I=1,N) /)
 
          ! GENERATE UP TO 100 U(0,1) NUMBERS AT A TIME.
-         DO I=1,N,100
+         do I=1,N,100
          M = MIN(N-I+1, 100)
-         CALL RANDOM_NUMBER(U)
-         DO J=1,M
+         call RANDOM_NUMBER(U)
+         do J=1,M
          IPJ = I+J-1
          K = INT(U(J)*(N-IPJ+1)) + IPJ
          ITEMP = P(IPJ)
          P(IPJ) = P(K)
          P(K) = ITEMP
-         END DO
-         END DO
+         end do
+         end do
          RETURN
 
-      END SUBROUTINE RPERM
+      end SUBROUTINE RPERM
 
-		subroutine grow2d(array,deltarow) 
+		SUBROUTINE grow2d(array,deltarow) 
 			integer :: deltarow
 			double precision, allocatable, intent(inout) :: array(:,:)
 			double precision, allocatable :: tmparray(:,:)
@@ -188,6 +188,6 @@ MODULE grid
 			deallocate(array)
 			allocate(array(size(tmparray,1),size(tmparray,2)))
 			array = tmparray
-		end subroutine
+		end SUBROUTINE
 
-END MODULE
+end module

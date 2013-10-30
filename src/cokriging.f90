@@ -24,47 +24,47 @@
 !  After that, kriging is performed on this new, augmented, data set
 
 ! module is here to enable optional arguments
-MODULE cokrigingmodule
+module cokrigingmodule
    CONTAINS
 SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
-   USE sensitivity, only: construct_sensitivity
-   IMPLICIT NONE
+   use sensitivity, only: construct_sensitivity
+   implicit none
 
    ! arguments
-   INTEGER, INTENT(IN) :: D, Ns, NsNew, Order
-   DOUBLE PRECISION, INTENT(IN) :: XOLD(Ns,D),YOLD(Ns,1) 
-   DOUBLE PRECISION, INTENT(IN) :: XNEW(NsNew,D)
-   DOUBLE PRECISION, INTENT(IN) :: Grad(Ns,D)
-   DOUBLE PRECISION, INTENT(IN) :: Raug
-   DOUBLE PRECISION, INTENT(INOUT) :: theta(D)
-   DOUBLE PRECISION, INTENT(OUT) :: YNEW(NsNew,1)
-   DOUBLE PRECISION, INTENT(OUT) :: MSE(NsNew)
-   DOUBLE PRECISION, INTENT(OUT), OPTIONAL, target :: S(:,:)
+   integer, intent(in) :: D, Ns, NsNew, Order
+   double precision, intent(in) :: XOLD(Ns,D),YOLD(Ns,1) 
+   double precision, intent(in) :: XNEW(NsNew,D)
+   double precision, intent(in) :: Grad(Ns,D)
+   double precision, intent(in) :: Raug
+   double precision, intent(INOUT) :: theta(D)
+   double precision, intent(out) :: YNEW(NsNew,1)
+   double precision, intent(out) :: MSE(NsNew)
+   double precision, intent(out), optional, target :: S(:,:)
   
    ! work variables
-   INTEGER :: Naug
-   INTEGER :: dd, nn, kk
-   DOUBLE PRECISION,ALLOCATABLE :: X(:,:), Y(:,:)
-   DOUBLE PRECISION :: delta(D)
-   DOUBLE PRECISION :: XMAX(D),XMIN(D)
+   integer :: Naug
+   integer :: dd, nn, kk
+   double precision,ALLOCATABLE :: X(:,:), Y(:,:)
+   double precision :: delta(D)
+   double precision :: XMAX(D),XMIN(D)
    
    Naug=(2*D+1)*Ns
-   ALLOCATE(X(Naug,D))
-   ALLOCATE(Y(Naug,1))
+   allocate(X(Naug,D))
+   allocate(Y(Naug,1))
    
    XMAX = MAXVAL(XOLD,1)
    XMIN = MINVAL(XOLD,1)
 
-   DO dd=1,D
+   do dd=1,D
       delta(dd) = (XMAX(dd) - XMIN(dd)) * Raug / (ns ** (1.0d0 / D))
-   END DO
+   end do
 
    X(1:Ns,:) = XOLD(1:Ns,:)
    Y(1:Ns,:) = YOLD(1:Ns,:)
 
    kk = Ns + 1
-   DO nn = 1,Ns
-      DO dd =1,D
+   do nn = 1,Ns
+      do dd =1,D
          X(kk,:) = X(nn,:)
          X(kk,dd) = X(nn,dd) + delta(dd)
          Y(kk,1) = Y(nn,1) + delta(dd) * Grad(nn,dd)
@@ -76,14 +76,14 @@ SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
          Y(kk,1) = Y(nn,1) - delta(dd) * Grad(nn,dd)
 
          kk = kk + 1
-      END DO
-   END DO
+      end do
+   end do
    
    ! perform kriging normally with new set of X and Y 
-   CALL KRIGING(XNEW,YNEW,theta,MSE,X,Y,Order,D,Naug,NsNew)
+   call KRIGING(XNEW,YNEW,theta,MSE,X,Y,Order,D,Naug,NsNew)
 
-   IF ( PRESENT(S) ) THEN
-      CALL construct_sensitivity(S,XNEW,YOLD,XOLD,Grad,theta,Order,D,Ns,NsNew)
-   END IF
-END SUBROUTINE
-END MODULE
+   if ( present(S) ) then
+      call construct_sensitivity(S,XNEW,YOLD,XOLD,Grad,theta,Order,D,Ns,NsNew)
+   end if
+end SUBROUTINE
+end module

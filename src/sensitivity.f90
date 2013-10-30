@@ -3,7 +3,7 @@ module sensitivity
    use la_precision, only:wp=>dp
    use f95_lapack, only:LA_GESV
    use matrix, only : eye, normalize
-   USE PARAMS, ONLY:Pc
+   use PARAMS, only:Pc
    use correlation, only:get_rxy,invertr,construct_R
    use regression, only:construct_f,construct_fmat
 
@@ -12,35 +12,35 @@ module sensitivity
    contains
       ! construct the sensitivity vectort
       SUBROUTINE construct_sensitivity(S,XNEW,Y,X,Grad,theta,Order,D,Ns,NsNew)
-         IMPLICIT NONE
+         implicit none
 
          ! ARGUMENTS
-         INTEGER, INTENT(IN) :: D, Ns, NsNew, Order
-         DOUBLE PRECISION, INTENT(IN) :: X(Ns,D), XNEW(NsNew,D)
-         DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)
+         integer, intent(in) :: D, Ns, NsNew, Order
+         double precision, intent(in) :: X(Ns,D), XNEW(NsNew,D)
+         double precision, intent(in) :: Y(Ns,1)
          double precision, intent(in) :: Grad(Ns,D)
-         DOUBLE PRECISION, INTENT(IN) :: theta(D)
-         DOUBLE PRECISION, INTENT(OUT) :: S(NsNew,1)
+         double precision, intent(in) :: theta(D)
+         double precision, intent(out) :: S(NsNew,1)
 
          ! Work variables
-         DOUBLE PRECISION :: F(NS,1+Order*D)
-         DOUBLE PRECISION :: R(Ns,Ns)
-         DOUBLE PRECISION :: Rinv(Ns,Ns), I(Ns,Ns)
-         DOUBLE PRECISION :: fx(1+Order*D,1)
-         DOUBLE PRECISION :: rx(Ns,1)
-         DOUBLE PRECISION :: res(1,1)
+         double precision :: F(NS,1+Order*D)
+         double precision :: R(Ns,Ns)
+         double precision :: Rinv(Ns,Ns), I(Ns,Ns)
+         double precision :: fx(1+Order*D,1)
+         double precision :: rx(Ns,1)
+         double precision :: res(1,1)
          double precision :: psi(ns,1) 
          double precision :: gradsum(ns,1)
          double precision :: zeta(1+Order*D,1)
          double precision :: DRHS(ns,1)
 
-         INTEGER :: ii,jj,dd,fdim
+         integer :: ii,jj,dd,fdim
          fdim = 1 + Order*D
          
-         CALL construct_fmat(F,X,Order,D,Ns)
-         CALL construct_R(R,theta,X,D,Ns,Pc)
-         CALL eye(I,Ns)
-         CALL invertR(R,I,Rinv,Ns)
+         call construct_fmat(F,X,Order,D,Ns)
+         call construct_R(R,theta,X,D,Ns,Pc)
+         call eye(I,Ns)
+         call invertR(R,I,Rinv,Ns)
 
          ! construct gradsum
          do jj=1,ns
@@ -51,14 +51,14 @@ module sensitivity
          enddo
          call normalize(gradsum(:,1),ns)
 
-         DO ii=1,NsNew
+         do ii=1,NsNew
             ! construct f(x)
             call construct_f(fx(:,1),XNEW(ii,:),Order,D,Ns)
             
             ! construct r(x)
-            DO jj=1,ns
+            do jj=1,ns
                rx(jj,1) = get_rxy(theta,xnew(ii,:),x(jj,:),D,Pc)
-            END DO
+            end do
 
             ! construct S 
             psi=0
@@ -74,15 +74,15 @@ module sensitivity
                S(ii,1) = S(ii,1) + get_S_j(fx,zeta,rx,DRHS,D,Ns,fdim)
                psi(jj,1) = 0.0d0
             enddo
-         END DO 
+         end do 
          call normalize(S(:,1),nsnew)
-      END SUBROUTINE
+      end SUBROUTINE
 
       ! -----------------------------------------------------------------
       ! private functions to compute the sentitivity 
       ! -----------------------------------------------------------------
          ! zeta=(F'*Rinv*F)\(F'*Rinv*Psi);
-         subroutine construct_zeta(zeta,F,Rinv,Psi,D,Ns,fdim)
+         SUBROUTINE construct_zeta(zeta,F,Rinv,Psi,D,Ns,fdim)
             integer, intent(in) :: d, ns, fdim
             double precision, intent(in) :: F(ns,fdim), Rinv(ns,ns)
             double precision, intent(in) :: Psi(ns,1)
@@ -106,10 +106,10 @@ module sensitivity
             zeta = FtRinvPsi
             
             call LA_GESV(FtRinvF,zeta) 
-         end subroutine
+         end SUBROUTINE
 
          ! DRHS=Rinv*(Psi-F*zeta);
-         subroutine construct_DRHS(DRHS,F,Rinv,Psi,zeta,D,Ns,fdim)
+         SUBROUTINE construct_DRHS(DRHS,F,Rinv,Psi,zeta,D,Ns,fdim)
             integer, intent(in) :: D, Ns, fdim
             double precision, intent(in) :: F(ns,fdim), Rinv(ns,ns)
             double precision, intent(in) :: Psi(ns,1), zeta(fdim,1)
@@ -123,7 +123,7 @@ module sensitivity
 
             ! DRHS = Rinv * PsiMFzeta
             call dgemm('n','n',ns,1,ns,1.0d0,Rinv,ns,PsiMFzeta,ns,0.0d0,DRHS,ns)
-         end subroutine
+         end SUBROUTINE
 
          ! abs(fx*zeta+r'*DRHS);
          double precision function get_S_j(fx,zeta,rx,DRHS,D,Ns,fdim)

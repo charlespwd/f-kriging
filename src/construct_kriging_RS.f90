@@ -6,40 +6,40 @@
 !  this routine makes a response surface assuming the theta is fixed.
 !  it also calculates the MSE error at XNEW locations.
 SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,Order,D,Ns,NsNew)
-   USE PARAMS, ONLY:Pc
-   USE matrix, only: eye
+   use PARAMS, only:Pc
+   use matrix, only: eye
    use correlation, only: invertr,get_rxy
    use regression, only: construct_f
    use mle, only : construct_beta, get_sigma2
    use error
-   IMPLICIT NONE
+   implicit none
 
    ! ARGUMENTS
-   INTEGER, INTENT(IN) :: D, Ns, NsNew, Order
-   DOUBLE PRECISION, INTENT(IN) :: X(Ns,D), XNEW(NsNew,D)
-   DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)
-   DOUBLE PRECISION, INTENT(IN) :: F(NS,1+Order*D)
-   DOUBLE PRECISION, INTENT(INOUT) :: R(Ns,Ns)
-   DOUBLE PRECISION, INTENT(IN) :: theta(D)
-   DOUBLE PRECISION, INTENT(OUT) :: YNEW(NsNew,1)
-   DOUBLE PRECISION, INTENT(OUT) :: MSE(nsnew)
+   integer, intent(in) :: D, Ns, NsNew, Order
+   double precision, intent(in) :: X(Ns,D), XNEW(NsNew,D)
+   double precision, intent(in) :: Y(Ns,1)
+   double precision, intent(in) :: F(NS,1+Order*D)
+   double precision, intent(INOUT) :: R(Ns,Ns)
+   double precision, intent(in) :: theta(D)
+   double precision, intent(out) :: YNEW(NsNew,1)
+   double precision, intent(out) :: MSE(nsnew)
 
    ! Work variables
-   DOUBLE PRECISION :: Rinv(Ns,Ns), I(Ns,Ns)
-   DOUBLE PRECISION :: beta(1+Order*D,1) 
-   DOUBLE PRECISION :: YmFb(Ns,1)
-   DOUBLE PRECISION :: RinvYmFb(Ns,1)
-   DOUBLE PRECISION :: sigma2
-   DOUBLE PRECISION :: fx(1+Order*D,1)
-   DOUBLE PRECISION :: rx(Ns,1)
-   DOUBLE PRECISION :: res(1,1)
+   double precision :: Rinv(Ns,Ns), I(Ns,Ns)
+   double precision :: beta(1+Order*D,1) 
+   double precision :: YmFb(Ns,1)
+   double precision :: RinvYmFb(Ns,1)
+   double precision :: sigma2
+   double precision :: fx(1+Order*D,1)
+   double precision :: rx(Ns,1)
+   double precision :: res(1,1)
 
-   INTEGER :: ii,jj,fdim
+   integer :: ii,jj,fdim
    fdim = 1 + Order*D
    
-   CALL eye(I,Ns)
-   CALL invertR(R,I,Rinv,Ns)
-   CALL construct_beta(beta,F,Rinv,Y,Order,D,Ns)
+   call eye(I,Ns)
+   call invertR(R,I,Rinv,Ns)
+   call construct_beta(beta,F,Rinv,Y,Order,D,Ns)
 
    YmFb = Y
    ! YmFb = Y-F*beta
@@ -47,27 +47,27 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,Order,D,Ns,NsNew)
 
    ! RinvYmFb = Rinv * YmFb
    !  (ns,ns) x (ns,1) = (ns,1)
-   CALL DGEMM('n','n',ns,1,ns,1.0d0,Rinv,Ns,YmFb,ns,0.0d0,RinvYmFb,ns)
+   call DGEMM('n','n',ns,1,ns,1.0d0,Rinv,Ns,YmFb,ns,0.0d0,RinvYmFb,ns)
    sigma2 = get_sigma2(YmFb,Rinv,Order,D,Ns)
    
-   DO ii=1,NsNew
+   do ii=1,NsNew
       ! construct f(x)
       call construct_f(fx(:,1),XNEW(ii,:),Order,D,Ns)
       
       ! construct r(x)
-      DO jj=1,ns
+      do jj=1,ns
          rx(jj,1) = get_rxy(theta,xnew(ii,:),x(jj,:),D,Pc)
-      END DO
+      end do
       
       ! YNEW(ii,1) = fx'*beta + rx'*Rinv*YmFb
       !  first res = fx'*beta
-      CALL DGEMM('t','n',1,1,fdim,1.0d0,fx,fdim,beta,fdim,0.0d0,res,1)
+      call DGEMM('t','n',1,1,fdim,1.0d0,fx,fdim,beta,fdim,0.0d0,res,1)
 
       !  then res = rx'*RinvYmFb + res
-      CALL DGEMM('t','n',1,1,ns,1.0d0,rx,Ns,RinvYmFb,Ns,1.0d0,res,1)
+      call DGEMM('t','n',1,1,ns,1.0d0,rx,Ns,RinvYmFb,Ns,1.0d0,res,1)
       YNEW(ii,1) = res(1,1)
 
       MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim)
-   END DO 
-END SUBROUTINE
+   end do 
+end SUBROUTINE
 

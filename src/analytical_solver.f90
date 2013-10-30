@@ -3,27 +3,27 @@ module analytical_solver
 
    SUBROUTINE solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,GRAD,Order,D,Ns,NsNew,&
          func_name, S, deltans)
-      USE PARAMS, ONLY: Raug
-      USE ANALYTICAL_FUNCTIONS, ONLY: Y_GRADIENT
+      use PARAMS, only: Raug
+      use ANALYTICAL_FUNCTIONS, only: Y_GRADIENT
       use cokrigingmodule, only:cokriging
-      IMPLICIT NONE
+      implicit none
       ! arguments
-      INTEGER, INTENT(IN) :: D,Ns,NsNew,Order
+      integer, intent(in) :: D,Ns,NsNew,Order
       integer, intent(in), optional :: deltans
-      DOUBLE PRECISION, INTENT(IN) :: XNEW(NSNEW,D)
-      DOUBLE PRECISION, INTENT(IN) :: XMIN(D), XMAX(D)
-      DOUBLE PRECISION, INTENT(INOUT) :: theta(D)
-      DOUBLE PRECISION, INTENT(OUT) :: MSE(NsNew)
-      DOUBLE PRECISION, INTENT(OUT) :: YNEW(NsNew,1)
-      DOUBLE PRECISION, intent(inout) :: GRAD(Ns,D)
-      DOUBLE PRECISION, INTENT(OUT), optional, target :: S(nsnew,1)
-      CHARACTER(len=20),INTENT(IN) :: func_name
+      double precision, intent(in) :: XNEW(NSNEW,D)
+      double precision, intent(in) :: XMIN(D), XMAX(D)
+      double precision, intent(INOUT) :: theta(D)
+      double precision, intent(out) :: MSE(NsNew)
+      double precision, intent(out) :: YNEW(NsNew,1)
+      double precision, intent(inout) :: GRAD(Ns,D)
+      double precision, intent(out), optional, target :: S(nsnew,1)
+      character(len=20),intent(in) :: func_name
 
       ! work variables
-      DOUBLE PRECISION :: YGRAD(Ns,D+1)
+      double precision :: YGRAD(Ns,D+1)
       double precision,allocatable :: tmpgrad(:,:)
-      DOUBLE PRECISION, intent(inout) :: Y(Ns,1)
-      DOUBLE PRECISION, intent(in) :: X(Ns,D)
+      double precision, intent(inout) :: Y(Ns,1)
+      double precision, intent(in) :: X(Ns,D)
 
       ! only calculate grad and y @ new locations
       if (present(deltans)) then
@@ -43,10 +43,10 @@ module analytical_solver
       GRAD(1:NS,1:D) = YGRAD(1:NS,2:(D+1))
 
       if (present(S)) then
-         CALL COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew,S)
+         call COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew,S)
       else 
-         CALL COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew)
+         call COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew)
       endif
 
-   END SUBROUTINE
+   end SUBROUTINE
 end module

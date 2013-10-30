@@ -16,54 +16,54 @@ module correlation
       ! outputs: 
       ! 	R	 
       SUBROUTINE construct_R(R,theta,X,D,Ns,Pc)
-         IMPLICIT NONE
-         DOUBLE PRECISION :: get_rxy
-         INTEGER :: D, Ns, Pc
-         INTEGER :: ii, jj, dd
-         DOUBLE PRECISION,intent(out) :: R(Ns,Ns)
-         DOUBLE PRECISION,intent(in) :: X(Ns,D),theta(D)
-         DOUBLE PRECISION :: tmp
-         DO ii=1,Ns
-            DO jj=ii,Ns
+         implicit none
+         double precision :: get_rxy
+         integer :: D, Ns, Pc
+         integer :: ii, jj, dd
+         double precision,intent(out) :: R(Ns,Ns)
+         double precision,intent(in) :: X(Ns,D),theta(D)
+         double precision :: tmp
+         do ii=1,Ns
+            do jj=ii,Ns
                ! inlined for performance, this gets called so much that the overhead
                ! isn't worth the better readability. I left the call there
                ! instead
       !         R(ii,jj) = get_rxy(theta,X(ii,:),X(jj,:),D,Pc)
                tmp = 0.0d0
-               DO dd=1,D
+               do dd=1,D
                   tmp = tmp &
                      - theta(dd) * (abs(X(ii,dd) - X(jj,dd)) ** Pc)
-               END DO
+               end do
                R(ii,jj) = exp(tmp)
                R(jj,ii) = R(ii,jj)
-            END DO
-         END DO
-      END SUBROUTINE
+            end do
+         end do
+      end SUBROUTINE
 
       SUBROUTINE construct_RT(R,theta,X,D,Ns,Pc)
-         IMPLICIT NONE
-         DOUBLE PRECISION :: get_rxy
-         INTEGER :: D, Ns, Pc
-         INTEGER :: ii, jj, dd
-         DOUBLE PRECISION,intent(out) :: R(Ns,Ns)
-         DOUBLE PRECISION,intent(in) :: X(D,Ns),theta(D)
-         DOUBLE PRECISION :: tmp
-         DO jj=1,Ns
-            DO ii=jj,Ns
+         implicit none
+         double precision :: get_rxy
+         integer :: D, Ns, Pc
+         integer :: ii, jj, dd
+         double precision,intent(out) :: R(Ns,Ns)
+         double precision,intent(in) :: X(D,Ns),theta(D)
+         double precision :: tmp
+         do jj=1,Ns
+            do ii=jj,Ns
                ! inlined for performance, this gets called so much that the overhead
                ! isn't worth the better readability. I left the call there
                ! instead
       !         R(ii,jj) = get_rxy(theta,X(ii,:),X(jj,:),D,Pc)
                tmp = 0.0d0
-               DO dd=1,D
+               do dd=1,D
                   tmp = tmp &
                      - theta(dd) * (abs(X(dd,ii) - X(dd,jj)) ** Pc)
-               END DO
+               end do
                R(ii,jj) = exp(tmp)
                R(jj,ii) = R(ii,jj)
-            END DO
-         END DO
-      END SUBROUTINE   
+            end do
+         end do
+      end SUBROUTINE   
 
       !!
       ! This function computes the spatial correlation between x and y
@@ -76,23 +76,23 @@ module correlation
       ! outputs: 
       ! 	r(x,y);	 
       !
-      ! THIS FUNCTION HAS BEEN INLINED IN CONSTRUCT_R.F90, YOU HAVE TO UPDATE
-      ! IT THERE AS WELL IF YOU MODIFY ANYTHING THAT IS IN HERE. 
-      DOUBLE PRECISION FUNCTION get_rxy(theta,x,y,D,Pc)
-         IMPLICIT NONE
-         INTEGER :: D, Pc
-         DOUBLE PRECISION :: r
-         DOUBLE PRECISION :: theta(D), x(D), y(D)
-         INTEGER :: dd
-         DOUBLE PRECISION :: tmp
+      ! THIS function HAS BEEN INLINED in CONSTRUCT_R.F90, YOU HAVE TO UPDATE
+      ! IT THERE AS WELL if YOU MODIFY ANYTHING THAT IS in HERE. 
+      double precision function get_rxy(theta,x,y,D,Pc)
+         implicit none
+         integer :: D, Pc
+         double precision :: r
+         double precision :: theta(D), x(D), y(D)
+         integer :: dd
+         double precision :: tmp
          tmp = 0
-         DO dd=1,D
+         do dd=1,D
             tmp = tmp & 
                - theta(dd) * (abs(x(dd) - y(dd)) ** Pc)
-         END DO
+         end do
          get_rxy = exp(tmp)
          RETURN
-      END FUNCTION
+      end function
             
       !!
       ! A routine to inverse the correlation matrix
@@ -105,50 +105,50 @@ module correlation
       !  Rinv (out) : the inverse of the correlation matrix, ns x ns
       !  Ns : number of snapshots, i.e. dimension of matrix;
       SUBROUTINE invertR(R,I,Rinv,Ns)
-         USE LA_PRECISION,ONLY:WP=>DP
-         USE F95_LAPACK,ONLY:LA_GESVX
-         IMPLICIT NONE 
-         INTEGER, INTENT(IN) :: Ns
-         DOUBLE PRECISION, INTENT(INOUT) :: I(Ns,Ns)
-         DOUBLE PRECISION, INTENT(INOUT) :: R(Ns,Ns)
-         DOUBLE PRECISION, INTENT(OUT) :: Rinv(Ns,Ns)
-         DOUBLE PRECISION :: RCOND
-         INTEGER :: INFO
+         use LA_PRECISION,only:WP=>DP
+         use F95_LAPACK,only:LA_GESVX
+         implicit none 
+         integer, intent(in) :: Ns
+         double precision, intent(INOUT) :: I(Ns,Ns)
+         double precision, intent(INOUT) :: R(Ns,Ns)
+         double precision, intent(out) :: Rinv(Ns,Ns)
+         double precision :: RCOND
+         integer :: INFO
 
-         CALL LA_GESVX(R,I,Rinv,RCOND=RCOND,INFO=INFO)
-         CALL NUGGETCORRECT(R,I,Rinv,Ns,RCOND ** (-1))
-      END SUBROUTINE
+         call LA_GESVX(R,I,Rinv,RCOND=RCOND,INFO=INFO)
+         call NUGGETCORRECT(R,I,Rinv,Ns,RCOND ** (-1))
+      end SUBROUTINE
 
       !! 
       ! nugget correct, this function is CALLed by inverse R
       ! When a matrix is close to singular, a small epsilon is added to the 
       ! diagonal of the correlation matrix to permit it to solve
       SUBROUTINE nuggetcorrect(R,I,Rinv,Ns,cond)
-         USE PARAMS,ONLY:NUGGET,CONDTOL
-         USE LA_PRECISION,ONLY:WP=>DP
-         USE F95_LAPACK,ONLY:LA_GESVX
-         IMPLICIT NONE
-         INTEGER,INTENT(IN) :: Ns
-         DOUBLE PRECISION,INTENT(inout) :: Rinv(Ns,Ns), R(Ns,Ns) 
-         DOUBLE PRECISION,INTENT(inout) :: I(Ns,Ns) 
-         INTEGER :: ii,info
-         DOUBLE PRECISION :: eps, cond,rcon
+         use PARAMS,only:NUGGET,CONDTOL
+         use LA_PRECISION,only:WP=>DP
+         use F95_LAPACK,only:LA_GESVX
+         implicit none
+         integer,intent(in) :: Ns
+         double precision,intent(inout) :: Rinv(Ns,Ns), R(Ns,Ns) 
+         double precision,intent(inout) :: I(Ns,Ns) 
+         integer :: ii,info
+         double precision :: eps, cond,rcon
 
       ! could possibly optimize this by giving the factored L matrix since
       ! you need to calculate LA_GESVX to get the condition number. 
-      !   CALL LA_GESVX(R,I,Rinv,RCOND=rcon)
+      !   call LA_GESVX(R,I,Rinv,RCOND=rcon)
       !   cond = rcon ** (-1) 
-         IF (cond > condtol) THEN 
-      !      WRITE(*,'(a25,E11.5)') 'applying nugget to cond= ',cond
+         if (cond > condtol) then 
+      !      write(*,'(a25,E11.5)') 'applying nugget to cond= ',cond
             eps = (10 + Ns) * 10D0 ** (-NUGGET) 
-            DO ii=1,Ns
+            do ii=1,Ns
               R(ii,ii) = R(ii,ii) + eps
-            END DO
+            end do
 
             ! we do not want R or I to be modified by the LAPACK subroutines
 
-            CALL LA_GESVX(R,I,Rinv,RCOND=rcon,INFO=info) 
-      !      WRITE(*,'(a25,E11.5)') 'cond after nugget= ', rcon**(-1)
-         END IF
-      END SUBROUTINE
+            call LA_GESVX(R,I,Rinv,RCOND=rcon,INFO=info) 
+      !      write(*,'(a25,E11.5)') 'cond after nugget= ', rcon**(-1)
+         end if
+      end SUBROUTINE
 end module

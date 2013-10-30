@@ -1,5 +1,5 @@
 ! !! KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
-! This subroutine builds a response surface using kriging and an iterative
+! This SUBROUTINE builds a response surface using kriging and an iterative
 !  MLE to obtain theta. 
 !
 ! Arguments:
@@ -34,29 +34,29 @@
 !   are invited to read the paper by Lappo for the details on the iterative MLE
 !   solver. See optimize_theta_mle for implementation. 
 SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,Order,D,Ns,NewNs)
-   USE PARAMS, ONLY: Pc
+   use PARAMS, only: Pc
    use matrix, only: rescale
    use regression, only: construct_fmat
    use correlation, only : construct_r
    use mle, only : optimize_theta_mle, init_theta
-   IMPLICIT NONE
+   implicit none
    
    ! ARGUMENTS
-   INTEGER, INTENT(IN) :: D, Ns, NewNs, Order
-   DOUBLE PRECISION, INTENT(IN) :: XOLD(Ns,D)      ! unscaled set of snapshots
-   DOUBLE PRECISION, INTENT(IN) :: XNEW(NewNs,D)   ! unscaled set of untried loc
-   DOUBLE PRECISION, INTENT(IN) :: Y(Ns,1)         ! set of snapshot values
-   DOUBLE PRECISION, INTENT(INOUT) :: theta(D)     ! correlation parameter
-   DOUBLE PRECISION, INTENT(OUT) :: YNEW(NewNs,1)  ! set of untried values
-   DOUBLE PRECISION, INTENT(OUT) :: MSE(NewNs)     ! error estimation
+   integer, intent(in) :: D, Ns, NewNs, Order
+   double precision, intent(in) :: XOLD(Ns,D)      ! unscaled set of snapshots
+   double precision, intent(in) :: XNEW(NewNs,D)   ! unscaled set of untried loc
+   double precision, intent(in) :: Y(Ns,1)         ! set of snapshot values
+   double precision, intent(INOUT) :: theta(D)     ! correlation parameter
+   double precision, intent(out) :: YNEW(NewNs,1)  ! set of untried values
+   double precision, intent(out) :: MSE(NewNs)     ! error estimation
 
    ! Work variables
-   DOUBLE PRECISION :: X(Ns,D), XN(NewNs,D) ! scaled set of snapshots
-   DOUBLE PRECISION :: XMAX(D), XMIN(D) ! min's and max for scaling
-   DOUBLE PRECISION :: F(Ns,1+Order*D) ! regression matrix
-   DOUBLE PRECISION :: R(Ns,Ns), Rinv(Ns,Ns) ! correlation matrix and inverse
-   DOUBLE PRECISION :: bounds(D,2) ! bounds on theta 
-   INTEGER :: I_MIN=1, I_MAX=2
+   double precision :: X(Ns,D), XN(NewNs,D) ! scaled set of snapshots
+   double precision :: XMAX(D), XMIN(D) ! min's and max for scaling
+   double precision :: F(Ns,1+Order*D) ! regression matrix
+   double precision :: R(Ns,Ns), Rinv(Ns,Ns) ! correlation matrix and inverse
+   double precision :: bounds(D,2) ! bounds on theta 
+   integer :: I_MIN=1, I_MAX=2
 
    XMIN = minval(XOLD,1)
    XMAX = maxval(XOLD,1)
@@ -64,18 +64,18 @@ SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,Order,D,Ns,NewNs)
    X = XOLD
    XN = XNEW
    
-   CALL rescale(X,D,Ns,XMIN,XMAX)  ! Precondition X by "normalizing" it
-   CALL rescale(XN,D,NewNs,XMIN,XMAX) ! " "
+   call rescale(X,D,Ns,XMIN,XMAX)  ! Precondition X by "normalizing" it
+   call rescale(XN,D,NewNs,XMIN,XMAX) ! " "
 
    ! initialize theta and bounds
-   CALL init_theta(theta,bounds,X,D,Ns)
+   call init_theta(theta,bounds,X,D,Ns)
 
    ! optimize theta with iterative MLE
-   CALL optimize_theta_mle(theta,bounds,X,Y,Order,D,Ns)
+   call optimize_theta_mle(theta,bounds,X,Y,Order,D,Ns)
 
    ! construct F, R
-   CALL construct_fmat(F,X,Order,D,Ns)
-   CALL construct_R(R,theta,X,D,Ns,Pc)
+   call construct_fmat(F,X,Order,D,Ns)
+   call construct_R(R,theta,X,D,Ns,Pc)
 
-   CALL construct_kriging_RS(YNEW,XN,MSE,Y,X,F,R,theta,Order,D,Ns,NewNs)
-END SUBROUTINE
+   call construct_kriging_RS(YNEW,XN,MSE,Y,X,F,R,theta,Order,D,Ns,NewNs)
+end SUBROUTINE

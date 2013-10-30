@@ -4,7 +4,7 @@
 !  normalize(X,m) - x is X(m)
 !  eye(I,m) 
 module matrix
-   USE F95_LAPACK,ONLY:DGESVD_F95
+   use F95_LAPACK,only:DGESVD_F95
    implicit none
 
    contains
@@ -37,20 +37,20 @@ module matrix
       !  Xmin (in) : array of min per column of X (i.e. per dimension)
       !  Xout (out), optional : if present, x isn't overwritten, the scaled
       SUBROUTINE rescale(X, D, Ns, XMIN, XMAX)
-         INTEGER, INTENT(IN) :: Ns, D
-         DOUBLE PRECISION, INTENT(IN) :: XMAX(D), XMIN(D)
-         DOUBLE PRECISION, INTENT(INOUT) :: X(Ns,D)
-         INTEGER :: dd, ii
+         integer, intent(in) :: Ns, D
+         double precision, intent(in) :: XMAX(D), XMIN(D)
+         double precision, intent(INOUT) :: X(Ns,D)
+         integer :: dd, ii
 
          double precision :: mymax
 
-         DO dd=1,D
+         do dd=1,D
             X(:,dd) = X(:,dd) / (xmax(dd) - xmin(dd))  
-         END DO
-      END SUBROUTINE
+         end do
+      end SUBROUTINE
 
       ! normalizes positive vector between 0 and 1
-      subroutine normalize(X,m)
+      SUBROUTINE normalize(X,m)
          integer, intent(in) :: m
          double precision, intent(inout) :: X(m)
          double precision :: xmax,xmin
@@ -58,7 +58,7 @@ module matrix
          X = ABS(X)
          xmax = maxval(X)
          X = X / xmax
-      end subroutine
+      end SUBROUTINE
 
       double precision function vector_range(v, D)
          integer,  intent(in) :: D
@@ -71,31 +71,31 @@ module matrix
 
       !! make an identiy matrix, 
       SUBROUTINE eye(I,N)
-         INTEGER :: ii,N
-         DOUBLE PRECISION :: I(N,N)
+         integer :: ii,N
+         double precision :: I(N,N)
          I(:,:) = 0.0D0
          do ii=1,N
             I(ii,ii) = 1
          end do
-      END SUBROUTINE
+      end SUBROUTINE
 
       ! computes the trace of a square matrix
       ! Arguments
       !  A: square matrix, mxm
       !  m: size of matrix
-      DOUBLE PRECISION FUNCTION get_trace(A,m)
-         IMPLICIT NONE
-         INTEGER, INTENT(IN) :: m
-         DOUBLE PRECISION, INTENT(IN) :: A(m,m)
-         INTEGER :: ii
+      double precision function get_trace(A,m)
+         implicit none
+         integer, intent(in) :: m
+         double precision, intent(in) :: A(m,m)
+         integer :: ii
          get_trace = 0
-         DO ii=1,m
+         do ii=1,m
             get_trace = get_trace + A(ii,ii)
-         END DO
-      END FUNCTION
+         end do
+      end function
 
       ! calculates the distance betwen two vectors
-      DOUBLE PRECISION FUNCTION distance(X,Y,D)
+      double precision function distance(X,Y,D)
          integer, intent(in) :: D
          double precision, intent(in) :: X(1,D), Y(1,D)
          ! work

@@ -1,12 +1,12 @@
-PROGRAM sprogram
+program sprogram
    use analytical_functions, only: y_gradient
    use analytical_solver, only:solver
-   USE grid, only:vector_grid, columngrid, LHS, grow2d
-   USE utils, only: printer, process_command_input, l1error
+   use grid, only:vector_grid, columngrid, LHS, grow2d
+   use utils, only: printer, process_command_input, l1error
    use matrix, only: vector_range
    use sequential_sampling, only : get_sampling_radius, &
       construct_density_function, samplingcriterion, sampler
-   IMPLICIT NONE
+   implicit none
    integer :: D=2, Ns, NsNew, ngrid, deltans, nfinal, loopcount, mode, Order
    integer,allocatable :: newsamples(:)
    double precision,allocatable :: xnew(:,:),ynew(:,:)
@@ -122,6 +122,6 @@ PROGRAM sprogram
    write(67,*) loopcount
    close(67)
 
-END PROGRAM
+end program
 
 

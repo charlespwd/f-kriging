@@ -9,7 +9,8 @@ module utils
    integer,parameter ::  m_MSE = 0
    integer,parameter ::  m_SENSITIVITY = 1
    contains
-      subroutine printer(x,y,ntotal,nrow,D,filename,datafolder,iterate)
+      ! assumes D = 2
+      SUBROUTINE printer(x,y,ntotal,nrow,D,filename,datafolder,iterate)
          integer, intent(in) :: ntotal, nrow, D
          integer, intent(in),optional :: iterate
          character(len=20),intent(in), optional :: datafolder
@@ -41,9 +42,9 @@ module utils
             end if
          end do
          close(fileid)
-      end subroutine
+      end SUBROUTINE
 
-      subroutine process_command_input(funcname,Ns,Ngrid,xmin,xmax,nfinal, &
+      SUBROUTINE process_command_input(funcname,Ns,Ngrid,xmin,xmax,nfinal, &
             mode,deltans, order)
          integer :: ns, nsnew, ngrid
          integer, intent(inout), optional :: nfinal
@@ -102,14 +103,14 @@ module utils
                         read(command,'(I10)') nfinal
                      else 
                         print*, 'nfinal is not supported'
-                        STOP 
+                        stop 
                      endif
                   case ("-s","--sensitivity")
                      if (present(mode)) then
                         mode = m_SENSITIVITY
                      else 
                         print*, 'mode is not supported'
-                        STOP
+                        stop
                      endif
                   case ("--deltans")
                      if (present(deltans)) then
@@ -118,7 +119,7 @@ module utils
                         read(command,'(I10)') deltans
                      else 
                         print*, 'deltans is not supported'
-                        STOP
+                        stop
                      endif
                   case ("--order","-o")
                      if (present(order)) then
@@ -127,14 +128,14 @@ module utils
                         read(command,'(I10)') order
                      else 
                         print*, 'order was not passed'
-                        STOP
+                        stop
                      endif
                   case ("-m","--mse")
                      if (present(mode)) then
                         mode = m_MSE
                      else
                         print*, 'mode is not supported'
-                        STOP
+                        stop
                      endif
                   case ("-h","--help") 
                      print*, "SYNOPSIS"
@@ -170,15 +171,15 @@ module utils
                      print*, ""
                      print*, "AUTHOR"
                      print*, "      Written by Charles-Philippe Clermont"  
-                     STOP
+                     stop
                   case default
                      write(*,*) 'option "',trim(command),'" not supported' 
-                     STOP
+                     stop
                end select
                i = i+1
             end do
          end if
-      end subroutine
+      end SUBROUTINE
 
       double precision function l1error(ytrue,ynew,nsnew)
          integer, intent(in) :: nsnew
@@ -193,39 +194,39 @@ module utils
       end function
 
       SUBROUTINE DUMPMAT(A,dim1,dim2)
-         INTEGER :: dim1, dim2 
-         DOUBLE PRECISION :: A(dim1,dim2)
-         INTEGER :: ii,jj
+         integer :: dim1, dim2 
+         double precision :: A(dim1,dim2)
+         integer :: ii,jj
          900 format (I3,a1,i3,a2,F33.16)
-         DO ii=1,dim1
-         DO jj=1,dim2
+         do ii=1,dim1
+         do jj=1,dim2
             write(*,900) ii,",",jj,": ",A(ii,jj) 
-         END DO
-         END DO
-      END SUBROUTINE
+         end do
+         end do
+      end SUBROUTINE
 
       SUBROUTINE DUMPVEC(A,DIMS)
-         INTEGER :: DIMS
-         DOUBLE PRECISION :: A(DIMS)
-         INTEGER :: ii
+         integer :: DIMS
+         double precision :: A(DIMS)
+         integer :: ii
          900 format (I3,a2,F8.5)
-         DO ii=1,DIMS
+         do ii=1,DIMS
             write(*,900) ii,": ",A(ii)
          end do
-      END SUBROUTINE
+      end SUBROUTINE
 
       SUBROUTINE DUMPTENsOR(A,dim1,dim2,dim3)
-         INTEGER :: dim1,dim2,dim3
-         DOUBLE PRECISION :: A(dim1,dim2,dim3)
-         INTEGER :: ii,jj,kk
+         integer :: dim1,dim2,dim3
+         double precision :: A(dim1,dim2,dim3)
+         integer :: ii,jj,kk
          900 format (I3,a1,i3,a1,i3,a2,F8.5)
-         DO ii=1,dim1
-         DO jj=1,dim2
-         DO kk=1,dim3
+         do ii=1,dim1
+         do jj=1,dim2
+         do kk=1,dim3
             write(*,900) ii,",",jj,",",kk,": ",A(ii,jj,kk) 
-         END DO
-         END DO
-         END DO
-      END SUBROUTINE
+         end do
+         end do
+         end do
+      end SUBROUTINE
 
 end module
