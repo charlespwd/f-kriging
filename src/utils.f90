@@ -83,6 +83,10 @@ module utils
                      funcname="-c"
                      xmin = (/0.d0,0.d0/)
                      xmax = (/1.d0,1.d0/)
+                  case ("-r","--rosenbrock")
+                     funcname="-r"
+                     xmin = (/-2.d0,-2.d0/)
+                     xmax = (/2.d0,2.d0/)
                   case ("--ns")
                      i = i+1
                      call get_command_argument(i,command)

@@ -33,6 +33,11 @@ MODULE ANALYTICAL_FUNCTIONS
                tmp = fcosine(X(nn,:),D)
                Y_GRADIENT(nn,1:(D+1)) = tmp(1,1:(D+1))
             END DO
+         case("--rosenbrock", "-r");
+            DO nn=1,Ns
+               tmp = frosenbrock(X(nn,:),D)
+               Y_GRADIENT(nn,1:(D+1)) = tmp(1,1:(D+1))
+            END DO
          CASE DEFAULT
             PRINT * , 'option ',adjustl(func_name), ' not supported'
             STOP
@@ -115,6 +120,30 @@ MODULE ANALYTICAL_FUNCTIONS
       fcosine(1,2) =  -10*sin(10*x) + y
       ! grady
       fcosine(1,3) =  10*cos(10*y) + x;
+   END FUNCTION
+
+   FUNCTION frosenbrock(xv,D)
+      USE PARAMS, ONLY : PI
+      IMPLICIT NONE
+      INTEGER, INTENT(IN) :: D
+      DOUBLE PRECISION, INTENT(IN) :: xv(1,D)
+      DOUBLE PRECISION, DIMENSION(1,1+2) :: frosenbrock
+      DOUBLE PRECISION :: x,y
+      ! D should be two
+      IF (D /= 2) THEN
+         print *, 'D should be 2'
+         STOP
+      END IF
+
+      x = xv(1,1)
+      y = xv(1,2)
+
+      ! y
+      frosenbrock(1,1) = (1 - x) ** 2 + 100 * (y - x ** 2) ** 2
+      ! gradx
+      frosenbrock(1,2) = 2 * (200 * x ** 3 - 200 * x * y + x - 1) 
+      ! grady
+      frosenbrock(1,3) = 200 * (y - x ** 2) 
    END FUNCTION
 END MODULE
 
