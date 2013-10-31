@@ -1,6 +1,9 @@
 ! !! KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
 ! This subroutine builds a response surface using kriging and an iterative
 !  MLE to obtain theta. 
+
+! WARNING: FOR BETTER PERFORMANCE, XNEW and X SHOULD ALWAYS BE PRECONDITIONED
+! VIA THE PRECONDITION PROCEDURE IN THIS MODULE.
 !
 ! Arguments:
 !  XNEW : the new set of locations where the function should be evaluated
@@ -34,10 +37,25 @@
 !   are invited to read the paper by Lappo for the details on the iterative MLE
 !   solver. See optimize_theta_mle for implementation. 
 module kriging_module
+implicit none
    contains
-      subroutine KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,Order,D,Ns,NewNs)
-         use PARAMS, only: Pc
+
+      subroutine precondition(x,xn,xold,xnew,D,ns,nsnew)
          use matrix, only: rescale
+         integer, intent(in) :: D, ns, nsnew
+         double precision, intent(in) :: XOLD(ns,d), XNEW(nsnew,D)
+         double precision, intent(out) :: X(Ns,D), XN(nsnew,D) ! scaled set of snapshots
+         double precision :: xmin(D), xmax(D)
+         XMIN = minval(XOLD,1)
+         XMAX = maxval(XOLD,1)
+         X = XOLD
+         XN = XNEW
+         call rescale(X,D,Ns,XMIN,XMAX)  ! Precondition X by "normalizing" it
+         call rescale(XN,D,Nsnew,XMIN,XMAX) ! " "
+      end subroutine
+
+      subroutine KRIGING(XNEW,YNEW,theta,MSE,X,Y,Order,D,Ns,NewNs)
+         use PARAMS, only: Pc
          use regression, only: construct_fmat
          use correlation, only : construct_r
          use mle, only : optimize_theta_mle, init_theta
@@ -45,7 +63,7 @@ module kriging_module
          
          ! ARGUMENTS
          integer, intent(in) :: D, Ns, NewNs, Order
-         double precision, intent(in) :: XOLD(Ns,D)      ! unscaled set of snapshots
+         double precision, intent(in) :: X(Ns,D)      ! unscaled set of snapshots
          double precision, intent(in) :: XNEW(NewNs,D)   ! unscaled set of untried loc
          double precision, intent(in) :: Y(Ns,1)         ! set of snapshot values
          double precision, intent(INOUT) :: theta(D)     ! correlation parameter
@@ -53,21 +71,10 @@ module kriging_module
          double precision, intent(out) :: MSE(NewNs)     ! error estimation
 
          ! Work variables
-         double precision :: XMAX(D), XMIN(D) ! min's and max for scaling
          double precision :: F(Ns,1+Order*D) ! regression matrix
          double precision :: R(Ns,Ns), Rinv(Ns,Ns) ! correlation matrix and inverse
          double precision :: bounds(D,2) ! bounds on theta 
          integer :: I_MIN=1, I_MAX=2
-
-         double precision :: X(Ns,D), XN(NewNs,D) ! scaled set of snapshots
-         XMIN = minval(XOLD,1)
-         XMAX = maxval(XOLD,1)
-         
-         X = XOLD
-         XN = XNEW
-         
-         call rescale(X,D,Ns,XMIN,XMAX)  ! Precondition X by "normalizing" it
-         call rescale(XN,D,NewNs,XMIN,XMAX) ! " "
 
          ! initialize theta and bounds
          call init_theta(theta,bounds,X,D,Ns)
@@ -76,7 +83,7 @@ module kriging_module
          call optimize_theta_mle(theta,bounds,X,Y,Order,D,Ns)
 
          ! get the response surface and the MSE
-         call kriging_rs_and_mse(YNEW,XN,MSE,Y,X,theta,Order,D,Ns,NewNs)
+         call kriging_rs_and_mse(YNEW,XNEW,MSE,Y,X,theta,Order,D,Ns,NewNs)
       end subroutine
 
       ! kriging_rs_and_mse 
@@ -202,7 +209,7 @@ module kriging_module
          double precision :: fx(1+Order*D,1)
          double precision :: rx(Ns,1)
 
-         integer :: ii
+         integer :: ii, jj
          do ii=1,NsNew
             ! construct f(x)
             call construct_f(fx(:,1),XNEW(ii,:),Order,D,Ns)
@@ -215,5 +222,7 @@ module kriging_module
             MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim)
          end do 
       end subroutine
+
+        
 end module
 

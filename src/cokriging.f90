@@ -28,12 +28,13 @@ module cokrigingmodule
    CONTAINS
 subroutine COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
    use sensitivity, only: construct_sensitivity
-   use kriging_module, only: kriging
+   use kriging_module, only: kriging, precondition
    implicit none
 
    ! arguments
    integer, intent(in) :: D, Ns, NsNew, Order
-   double precision, intent(in) :: XOLD(Ns,D),YOLD(Ns,1) 
+   double precision, intent(in) :: YOLD(Ns,1) 
+   double precision, intent(in) :: XOLD(Ns,D)
    double precision, intent(in) :: XNEW(NsNew,D)
    double precision, intent(in) :: Grad(Ns,D)
    double precision, intent(in) :: Raug
@@ -48,10 +49,13 @@ subroutine COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
    double precision,ALLOCATABLE :: X(:,:), Y(:,:)
    double precision :: delta(D)
    double precision :: XMAX(D),XMIN(D)
+   double precision,allocatable :: x_pre(:,:)
+   double precision :: xnew_pre(nsnew,D)
    
    Naug=(2*D+1)*Ns
    allocate(X(Naug,D))
    allocate(Y(Naug,1))
+   allocate(x_pre(Naug,D))
    
    XMAX = MAXVAL(XOLD,1)
    XMIN = MINVAL(XOLD,1)
@@ -79,9 +83,15 @@ subroutine COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
          kk = kk + 1
       end do
    end do
+
+   ! precondition for better kriging! Seriously, it performs better in a range
+   ! of length 1.
+   x_pre = x
+   xnew_pre = xnew
+   call precondition(x_pre,xnew_pre,x,xnew,D,naug,nsnew)
    
    ! perform kriging normally with new set of X and Y 
-   call KRIGING(XNEW,YNEW,theta,MSE,X,Y,Order,D,Naug,NsNew)
+   call KRIGING(XNEW_pre,YNEW,theta,MSE,x_pre,Y,Order,D,Naug,NsNew)
 
    if ( present(S) ) then
       call construct_sensitivity(S,XNEW,YOLD,XOLD,Grad,theta,Order,D,Ns,NsNew)
