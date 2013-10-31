@@ -28,6 +28,7 @@ module cokrigingmodule
    CONTAINS
 subroutine COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
    use sensitivity, only: construct_sensitivity
+   use kriging_module, only: kriging
    implicit none
 
    ! arguments
