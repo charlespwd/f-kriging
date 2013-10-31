@@ -1,5 +1,5 @@
 ! !! KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,D,Ns,NewNs)
-! This SUBROUTINE builds a response surface using kriging and an iterative
+! This subroutine builds a response surface using kriging and an iterative
 !  MLE to obtain theta. 
 !
 ! Arguments:
@@ -33,7 +33,9 @@
 !  And that's all there is to it, getting the theta is a bit complicated but you
 !   are invited to read the paper by Lappo for the details on the iterative MLE
 !   solver. See optimize_theta_mle for implementation. 
-SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,Order,D,Ns,NewNs)
+module kriging_module
+   contains
+subroutine kRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,Order,D,Ns,NewNs)
    use PARAMS, only: Pc
    use matrix, only: rescale
    use regression, only: construct_fmat
@@ -78,4 +80,4 @@ SUBROUTINE KRIGING(XNEW,YNEW,theta,MSE,XOLD,Y,Order,D,Ns,NewNs)
    call construct_R(R,theta,X,D,Ns,Pc)
 
    call construct_kriging_RS(YNEW,XN,MSE,Y,X,F,R,theta,Order,D,Ns,NewNs)
-end SUBROUTINE
+end subroutine

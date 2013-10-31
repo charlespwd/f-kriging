@@ -5,7 +5,7 @@
 ! construct_kriging_rs
 !  this routine makes a response surface assuming the theta is fixed.
 !  it also calculates the MSE error at XNEW locations.
-SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,Order,D,Ns,NsNew)
+subroutine construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,Order,D,Ns,NsNew)
    use PARAMS, only:Pc
    use matrix, only: eye
    use correlation, only: invertr,get_rxy
@@ -69,5 +69,5 @@ SUBROUTINE construct_kriging_RS(YNEW,XNEW,MSE,Y,X,F,R,theta,Order,D,Ns,NsNew)
 
       MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim)
    end do 
-end SUBROUTINE
+end subroutine
 

@@ -36,7 +36,7 @@ module matrix
       !  Xmax (in) : array of maximums per column of X (i.e. per dimension)
       !  Xmin (in) : array of min per column of X (i.e. per dimension)
       !  Xout (out), optional : if present, x isn't overwritten, the scaled
-      SUBROUTINE rescale(X, D, Ns, XMIN, XMAX)
+      subroutine rescale(X, D, Ns, XMIN, XMAX)
          integer, intent(in) :: Ns, D
          double precision, intent(in) :: XMAX(D), XMIN(D)
          double precision, intent(INOUT) :: X(Ns,D)
@@ -47,10 +47,10 @@ module matrix
          do dd=1,D
             X(:,dd) = X(:,dd) / (xmax(dd) - xmin(dd))  
          end do
-      end SUBROUTINE
+      end subroutine
 
       ! normalizes positive vector between 0 and 1
-      SUBROUTINE normalize(X,m)
+      subroutine normalize(X,m)
          integer, intent(in) :: m
          double precision, intent(inout) :: X(m)
          double precision :: xmax,xmin
@@ -58,7 +58,7 @@ module matrix
          X = ABS(X)
          xmax = maxval(X)
          X = X / xmax
-      end SUBROUTINE
+      end subroutine
 
       double precision function vector_range(v, D)
          integer,  intent(in) :: D
@@ -70,14 +70,14 @@ module matrix
       end function
 
       !! make an identiy matrix, 
-      SUBROUTINE eye(I,N)
+      subroutine eye(I,N)
          integer :: ii,N
          double precision :: I(N,N)
          I(:,:) = 0.0D0
          do ii=1,N
             I(ii,ii) = 1
          end do
-      end SUBROUTINE
+      end subroutine
 
       ! computes the trace of a square matrix
       ! Arguments

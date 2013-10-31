@@ -11,7 +11,7 @@ module sensitivity
 
    contains
       ! construct the sensitivity vectort
-      SUBROUTINE construct_sensitivity(S,XNEW,Y,X,Grad,theta,Order,D,Ns,NsNew)
+      subroutine construct_sensitivity(S,XNEW,Y,X,Grad,theta,Order,D,Ns,NsNew)
          implicit none
 
          ! ARGUMENTS
@@ -76,13 +76,13 @@ module sensitivity
             enddo
          end do 
          call normalize(S(:,1),nsnew)
-      end SUBROUTINE
+      end subroutine
 
       ! -----------------------------------------------------------------
       ! private functions to compute the sentitivity 
       ! -----------------------------------------------------------------
          ! zeta=(F'*Rinv*F)\(F'*Rinv*Psi);
-         SUBROUTINE construct_zeta(zeta,F,Rinv,Psi,D,Ns,fdim)
+         subroutine construct_zeta(zeta,F,Rinv,Psi,D,Ns,fdim)
             integer, intent(in) :: d, ns, fdim
             double precision, intent(in) :: F(ns,fdim), Rinv(ns,ns)
             double precision, intent(in) :: Psi(ns,1)
@@ -106,10 +106,10 @@ module sensitivity
             zeta = FtRinvPsi
             
             call LA_GESV(FtRinvF,zeta) 
-         end SUBROUTINE
+         end subroutine
 
          ! DRHS=Rinv*(Psi-F*zeta);
-         SUBROUTINE construct_DRHS(DRHS,F,Rinv,Psi,zeta,D,Ns,fdim)
+         subroutine construct_DRHS(DRHS,F,Rinv,Psi,zeta,D,Ns,fdim)
             integer, intent(in) :: D, Ns, fdim
             double precision, intent(in) :: F(ns,fdim), Rinv(ns,ns)
             double precision, intent(in) :: Psi(ns,1), zeta(fdim,1)
@@ -123,7 +123,7 @@ module sensitivity
 
             ! DRHS = Rinv * PsiMFzeta
             call dgemm('n','n',ns,1,ns,1.0d0,Rinv,ns,PsiMFzeta,ns,0.0d0,DRHS,ns)
-         end SUBROUTINE
+         end subroutine
 
          ! abs(fx*zeta+r'*DRHS);
          double precision function get_S_j(fx,zeta,rx,DRHS,D,Ns,fdim)

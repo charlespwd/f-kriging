@@ -15,7 +15,7 @@ module grid
       ! X2, y1, [z21]
       ! ...
       ! X3, y3, [z33]      
-      SUBROUTINE vector_grid(X,LINSPACES,D,ngrid)
+      subroutine vector_grid(X,LINSPACES,D,ngrid)
          integer, intent(in) :: D, ngrid
          double precision, intent(in) :: linspaces(ngrid,D)
          double precision, intent(out) :: X(ngrid**D,D)
@@ -30,7 +30,7 @@ module grid
             row = row + 1
             counts = countplusplus(counts,D,ngrid)
          end do
-      end SUBROUTINE
+      end subroutine
       
       recursive function countplusplus(counts,D,ngrid) result(results)
          integer :: D,ngrid
@@ -85,7 +85,7 @@ module grid
       end function
 
       ! makes a grid for xnew (linear lhs)
-      SUBROUTINE columngrid(xnew,xmin,xmax,d,ngrid)
+      subroutine columngrid(xnew,xmin,xmax,d,ngrid)
          implicit none
          integer, intent(in) :: d, ngrid
          double precision, intent(in) :: xmin(d), xmax(d)
@@ -99,10 +99,10 @@ module grid
             linspaces(1:ngrid,ii) = tmpspace(1:ngrid,1)
          enddo
          call vector_grid(xnew,linspaces,D,ngrid)
-      end SUBROUTINE
+      end subroutine
 
       ! from the web
-      SUBROUTINE init_random_seed()
+      subroutine init_random_seed()
          implicit none
          integer, allocatable :: seed(:)
          integer :: i, n, un, istat, dt(8), pid, t(2), s
@@ -148,10 +148,10 @@ module grid
             end if
          end if
          call random_seed(put=seed)
-      end SUBROUTINE init_random_seed
+      end subroutine init_random_seed
 
       ! Knuth shuffle, from the web
-      SUBROUTINE RPERM(N, P)
+      subroutine RPERM(N, P)
 
          integer, intent(in) :: N
          integer, dimension(:), intent(out) :: P
@@ -176,9 +176,9 @@ module grid
          end do
          RETURN
 
-      end SUBROUTINE RPERM
+      end subroutine RPERM
 
-		SUBROUTINE grow2d(array,deltarow) 
+		subroutine grow2d(array,deltarow) 
 			integer :: deltarow
 			double precision, allocatable, intent(inout) :: array(:,:)
 			double precision, allocatable :: tmparray(:,:)
@@ -188,6 +188,6 @@ module grid
 			deallocate(array)
 			allocate(array(size(tmparray,1),size(tmparray,2)))
 			array = tmparray
-		end SUBROUTINE
+		end subroutine
 
 end module

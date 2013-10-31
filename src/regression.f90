@@ -10,7 +10,7 @@ module regression
       !
       ! output:
       !  f(x): [1, x_1^1, ...]
-      SUBROUTINE construct_f(f,x,Order,D,Ns)
+      subroutine construct_f(f,x,Order,D,Ns)
          implicit none
          integer :: Order, D, Ns
          integer :: oo,dd,i
@@ -24,7 +24,7 @@ module regression
                i = i + 1
             end do
          end do
-      end SUBROUTINE
+      end subroutine
 
       !! 
       ! This function builds the regression matrix F.
@@ -43,7 +43,7 @@ module regression
       !
       ! Output:
       !  F: The regression matrix without the coefficients. 
-      SUBROUTINE construct_fmat(F,snap_pos,Order,D,Ns)
+      subroutine construct_fmat(F,snap_pos,Order,D,Ns)
          implicit none
          integer :: Order, D, Ns
          integer :: nn
@@ -52,5 +52,5 @@ module regression
          do nn=1,Ns
             call construct_f(F(nn,:),snap_pos(nn,:),Order,D,Ns)
          end do
-      end SUBROUTINE
+      end subroutine
 end module

@@ -15,7 +15,7 @@ module correlation
       !
       ! outputs: 
       ! 	R	 
-      SUBROUTINE construct_R(R,theta,X,D,Ns,Pc)
+      subroutine construct_R(R,theta,X,D,Ns,Pc)
          implicit none
          double precision :: get_rxy
          integer :: D, Ns, Pc
@@ -38,9 +38,9 @@ module correlation
                R(jj,ii) = R(ii,jj)
             end do
          end do
-      end SUBROUTINE
+      end subroutine
 
-      SUBROUTINE construct_RT(R,theta,X,D,Ns,Pc)
+      subroutine construct_RT(R,theta,X,D,Ns,Pc)
          implicit none
          double precision :: get_rxy
          integer :: D, Ns, Pc
@@ -63,7 +63,7 @@ module correlation
                R(jj,ii) = R(ii,jj)
             end do
          end do
-      end SUBROUTINE   
+      end subroutine   
 
       !!
       ! This function computes the spatial correlation between x and y
@@ -104,7 +104,7 @@ module correlation
       !  I (in) : NsxNs, the identity matrix
       !  Rinv (out) : the inverse of the correlation matrix, ns x ns
       !  Ns : number of snapshots, i.e. dimension of matrix;
-      SUBROUTINE invertR(R,I,Rinv,Ns)
+      subroutine invertR(R,I,Rinv,Ns)
          use LA_PRECISION,only:WP=>DP
          use F95_LAPACK,only:LA_GESVX
          implicit none 
@@ -117,13 +117,13 @@ module correlation
 
          call LA_GESVX(R,I,Rinv,RCOND=RCOND,INFO=INFO)
          call NUGGETCORRECT(R,I,Rinv,Ns,RCOND ** (-1))
-      end SUBROUTINE
+      end subroutine
 
       !! 
       ! nugget correct, this function is CALLed by inverse R
       ! When a matrix is close to singular, a small epsilon is added to the 
       ! diagonal of the correlation matrix to permit it to solve
-      SUBROUTINE nuggetcorrect(R,I,Rinv,Ns,cond)
+      subroutine nuggetcorrect(R,I,Rinv,Ns,cond)
          use PARAMS,only:NUGGET,CONDTOL
          use LA_PRECISION,only:WP=>DP
          use F95_LAPACK,only:LA_GESVX
@@ -150,5 +150,5 @@ module correlation
             call LA_GESVX(R,I,Rinv,RCOND=rcon,INFO=info) 
       !      write(*,'(a25,E11.5)') 'cond after nugget= ', rcon**(-1)
          end if
-      end SUBROUTINE
+      end subroutine
 end module

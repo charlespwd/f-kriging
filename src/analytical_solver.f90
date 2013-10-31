@@ -1,7 +1,7 @@
 module analytical_solver
    contains
 
-   SUBROUTINE solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,GRAD,Order,D,Ns,NsNew,&
+   subroutine solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,GRAD,Order,D,Ns,NsNew,&
          func_name, S, deltans)
       use PARAMS, only: Raug
       use ANALYTICAL_FUNCTIONS, only: Y_GRADIENT
@@ -48,5 +48,5 @@ module analytical_solver
          call COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew)
       endif
 
-   end SUBROUTINE
+   end subroutine
 end module

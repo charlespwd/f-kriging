@@ -1,4 +1,4 @@
-! SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,D,Ns,NsNew)
+! subroutine COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,D,Ns,NsNew)
 !  This routine is a wrapper to kriging, but augments the data set with 
 !  information about the gradient around the snapshots
 !  
@@ -26,7 +26,7 @@
 ! module is here to enable optional arguments
 module cokrigingmodule
    CONTAINS
-SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
+subroutine COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
    use sensitivity, only: construct_sensitivity
    implicit none
 
@@ -85,5 +85,5 @@ SUBROUTINE COKRIGING(XNEW,YNEW,theta,MSE,XOLD,YOLD,Grad,Raug,Order,D,Ns,NsNew,S)
    if ( present(S) ) then
       call construct_sensitivity(S,XNEW,YOLD,XOLD,Grad,theta,Order,D,Ns,NsNew)
    end if
-end SUBROUTINE
+end subroutine
 end module

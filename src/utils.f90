@@ -10,7 +10,7 @@ module utils
    integer,parameter ::  m_SENSITIVITY = 1
    contains
       ! assumes D = 2
-      SUBROUTINE printer(x,y,ntotal,nrow,D,filename,datafolder,iterate)
+      subroutine printer(x,y,ntotal,nrow,D,filename,datafolder,iterate)
          integer, intent(in) :: ntotal, nrow, D
          integer, intent(in),optional :: iterate
          character(len=20),intent(in), optional :: datafolder
@@ -42,9 +42,9 @@ module utils
             end if
          end do
          close(fileid)
-      end SUBROUTINE
+      end subroutine
 
-      SUBROUTINE process_command_input(funcname,Ns,Ngrid,xmin,xmax,nfinal, &
+      subroutine process_command_input(funcname,Ns,Ngrid,xmin,xmax,nfinal, &
             mode,deltans, order)
          integer :: ns, nsnew, ngrid
          integer, intent(inout), optional :: nfinal
@@ -179,7 +179,7 @@ module utils
                i = i+1
             end do
          end if
-      end SUBROUTINE
+      end subroutine
 
       double precision function l1error(ytrue,ynew,nsnew)
          integer, intent(in) :: nsnew
@@ -193,7 +193,7 @@ module utils
          l1error = meanl1 
       end function
 
-      SUBROUTINE DUMPMAT(A,dim1,dim2)
+      subroutine DUMPMAT(A,dim1,dim2)
          integer :: dim1, dim2 
          double precision :: A(dim1,dim2)
          integer :: ii,jj
@@ -203,9 +203,9 @@ module utils
             write(*,900) ii,",",jj,": ",A(ii,jj) 
          end do
          end do
-      end SUBROUTINE
+      end subroutine
 
-      SUBROUTINE DUMPVEC(A,DIMS)
+      subroutine DUMPVEC(A,DIMS)
          integer :: DIMS
          double precision :: A(DIMS)
          integer :: ii
@@ -213,9 +213,9 @@ module utils
          do ii=1,DIMS
             write(*,900) ii,": ",A(ii)
          end do
-      end SUBROUTINE
+      end subroutine
 
-      SUBROUTINE DUMPTENsOR(A,dim1,dim2,dim3)
+      subroutine DUMPTENsOR(A,dim1,dim2,dim3)
          integer :: dim1,dim2,dim3
          double precision :: A(dim1,dim2,dim3)
          integer :: ii,jj,kk
@@ -227,6 +227,6 @@ module utils
          end do
          end do
          end do
-      end SUBROUTINE
+      end subroutine
 
 end module
