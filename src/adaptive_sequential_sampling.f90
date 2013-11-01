@@ -14,11 +14,9 @@ module adaptive_sequential_sampling
    contains
       
       ! adaptive_ssck - adaptive sequential sampling cokriging routine 
-      subroutine adaptive_ssck(func, grad, xminxmax, D, iterate, datadirectory, &
-         fileprefix)
-         use analytical_solver, only:solver
-         use grid, only:vector_grid, columnGridRs, LHS, grow2d
-         use utils, only: printer, process_command_input, l1error
+      subroutine adaptive_ssck(func, fgrad, xminmax, D, iterate, datadirectory)
+         use grid, only:vector_grid, columnGrid, LHS, grow2d
+         use utils, only: printer, l1error
          use matrix, only: vector_range
          use sequential_sampling, only : get_sampling_radius, &
             construct_density_function, samplingcriterion, sampler
@@ -28,19 +26,18 @@ module adaptive_sequential_sampling
          integer, intent(in), optional :: iterate
          double precision, intent(in) :: xminmax(D,2) 
          character(len=50), intent(in), optional :: datadirectory
-         character(len=50), intent(in), optional :: fileprefix
          interface true_function
             function func(x,D) 
                integer, intent(in) :: D
                double precision, intent(in) :: x(D,1)
-               double precision, intent(out) :: func
+               double precision :: func
             end function
          end interface true_function
          interface true_gradient
-            function grad(x,D)
+            function fgrad(x,D)
                integer, intent(in) :: D
                double precision, intent(in) :: x(D,1)
-               double precision, intent(out) :: grad(D,1)
+               double precision :: fgrad(D,1)
             end function
          end interface true_gradient
 
@@ -62,32 +59,28 @@ module adaptive_sequential_sampling
          double precision :: samplingRadius 
          double precision :: maxerror
          character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat', dotsfile='d_dots.dat'
-         character(len=20) :: func_name, errfile
-         character(len=20) :: datadir
+         character(len=20) :: func_name, errfile, prefix
+         character(len=50) :: datadir
          integer :: ii
 
-         xmin(1:D) = xminmax(1:D,1)
-         xmax(1:D) = xminmax(1:D,2)
-
-         datadir = './data'
+         datadir = './data' ! by default
          if (present(datadirectory)) then
             datadir = datadirectory
          end if
-         errfile= trim(datadirectory)//'/'//'e.dat'
-         loopcount = 0
-         ! set default values or get arguments from command line
+         errfile= trim(datadir)//'/'//'e.dat'
+
+         ns = nGridStart ** D
+         nsnew = nGridRs ** D
+
          allocate(xmin(d))
          allocate(xmax(d))
-
-         ns = nStartGrid
-         nsnew = nGridRs ** D
          allocate(xnew(nsnew,D))
          allocate(ynew(nsnew,1))
          allocate(ygrad(nsnew,D+1))
          allocate(ytrue(nsnew,1))
-         allocate(x(ns**D,D))
-         allocate(y(ns**D,1))
-         allocate(grad(ns**D,D))
+         allocate(x(ns,D))
+         allocate(y(ns,1))
+         allocate(grad(ns,D))
          allocate(theta(d))
          allocate(mse(nsnew,1))
          allocate(eest(nsnew,1))
@@ -95,17 +88,26 @@ module adaptive_sequential_sampling
          allocate(S(nsnew,1))
          allocate(newsamples(delta_ns))
 
-         call columnGridRs(xnew,xmin,xmax,d,nGridRs)
+         xmin(1:D) = xminmax(1:D,1)
+         xmax(1:D) = xminmax(1:D,2)
 
-         ygrad = Y_GRADIENT(xnew,D,nsnew,func_name)
+         ! make grids
+         call columnGrid(x,xmin,xmax,d,nGridStart)
+         call columnGrid(xnew,xmin,xmax,d,nGridRs)
+
+         ! true solution (ouch)
+         ! TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+         ! TODO make sure to turn that off if the function isnt analytical
+         ! TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+         ygrad = Y_GRADIENT(xnew,D,nsnew)
          ytrue(1:NsNew,1) = ygrad(1:nsnew,1)
 
-         ! make initial grid
-         call columnGridRs(x,xmin,xmax,d,ns)
-         theta = (/-1,-1/)
-         ns = ns ** D
+         ! initialize theta with defaults 
+         theta = -1 
+
          ! perform cokriging, sensitivity analysis, etc. 
-         call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,Grad,Order,D,Ns,NsNew,func_name,&
+         loopcount = 0
+         call c_solver(xnew,ynew,theta,mse,xmin,xmax,x,y,Grad,Order,D,Ns,NsNew,Y_GRADIENT,&
             S=S) 
 
           ! make fancy graphs
@@ -116,7 +118,7 @@ module adaptive_sequential_sampling
          ! print error to file
          maxerror = l1error(ytrue,ynew,nsnew) 
          write(67, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
-         
+
          loopcount = 0
          ! sequential sampling loop
          do while (ns<=nFinal)
@@ -125,21 +127,18 @@ module adaptive_sequential_sampling
             ! update the sampling radius because ns changed
             samplingradius = get_sampling_radius(xmin,xmax,D,ns)
 
-            ! construct the new density function
-            call construct_density_function(psi,xnew,x,xmax,xmin,D,nsnew,ns)
-
             ! construct the new eest stack
+            call construct_density_function(psi,xnew,x,xmax,xmin,D,nsnew,ns)
             call samplingcriterion(eest,mse,nsnew,psi,mode,S=S)
 
             ! find the points to add to the set
-            call sampler(newsamples,Eest,XNEW,X,samplingRadius,deltaNs,D,nsnew,ns)
+            call sampler(newsamples,Eest,XNEW,X,samplingRadius,delta_ns,D,nsnew,ns)
 
             ! add the points to the existing set
             call grow2d(x,delta_ns)
             call grow2d(y,delta_ns)
             call grow2d(grad,delta_ns)
             do ii=1,delta_ns
-               !! add newsamples to the set
                x(ns+ii,1:D) = xnew(newsamples(ii),1:D)    
             enddo
             
@@ -147,10 +146,11 @@ module adaptive_sequential_sampling
             ns = ns + delta_ns
             
             ! perform cokriging, sensitivity analysis, etc. 
-            call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,Order,D,Ns,NsNew,func_name, &
+            call c_solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,Order,D,Ns,NsNew,Y_GRADIENT, &
                S=S,DELTANS=delta_ns)
             
             loopcount = loopcount+1
+
             ! make fancy graphs
             call printer(x,y,ns,1,D,dotsfile,datadir,loopcount)
             call printer(xnew,ynew,nsnew,nGridRs,D,rsfile,datadir,loopcount)
@@ -168,7 +168,7 @@ module adaptive_sequential_sampling
                ! arguments
                integer, intent(in) :: D, ns
                double precision, intent(in) :: x(Ns,D)
-               double precision, intent(out) :: Y_GRADIENT(NS,1+D)
+               double precision :: Y_GRADIENT(NS,1+D)
                
                ! work
                integer :: ii
@@ -177,33 +177,94 @@ module adaptive_sequential_sampling
                xt = transpose(x)
                do ii=1,ns
                   Yt(1,ii) = func(xt(:,ii), D)
-                  Yt(2:(D+1),ii) = grad(xt(:,ii),D)
+                  Yt(2:(D+1),ii:ii) = fgrad(xt(:,ii),D)
                enddo
                Y_GRADIENT = transpose(yt)
             end function 
       end subroutine
+
+      ! cokriging solver 
+      subroutine c_solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,GRAD,Order,D,Ns,NsNew,&
+            Y_GRADIENT, S, deltans)
+         use PARAMS, only: Raug
+         use cokrigingmodule, only:cokriging
+         implicit none
+
+         ! arguments
+         integer, intent(in) :: D,Ns,NsNew,Order
+         integer, intent(in), optional :: deltans
+         double precision, intent(in) :: XNEW(NSNEW,D)
+         double precision, intent(in) :: XMIN(D), XMAX(D)
+         double precision, intent(INOUT) :: theta(D)
+         double precision, intent(out) :: MSE(NsNew)
+         double precision, intent(out) :: YNEW(NsNew,1)
+         double precision, intent(inout) :: GRAD(Ns,D)
+         double precision, intent(out), optional, target :: S(nsnew,1)
+         interface true_function
+            function Y_GRADIENT(x,D,ns)
+               integer, intent(in) :: D, ns
+               double precision, intent(in) :: x(ns,D)
+               double precision :: Y_GRADIENT(ns,1+D)
+            end function
+         end interface true_function
+
+         ! work variables
+         double precision :: YGRAD(Ns,D+1)
+         double precision,allocatable :: tmpgrad(:,:)
+         double precision, intent(inout) :: Y(Ns,1)
+         double precision, intent(in) :: X(Ns,D)
+
+         ! only calculate grad and y @ new locations
+         if (present(deltans)) then
+            allocate(tmpgrad(deltans,D+1))
+            ! copy old stuff
+            YGRAD(1:ns-deltans,1) = Y(1:ns,1)
+            YGRAD(1:ns-deltans,2:D+1) = Grad(1:ns,1:D)
+            ! calculate new stuff
+            tmpgrad = Y_GRADIENT(X(ns-deltans+1:ns,:),D,deltans)
+            ! put it in ygrad
+            YGRAD(ns-deltans+1:ns,1:D+1) = tmpgrad(1:deltans,1:D+1)
+         else      
+            YGRAD = Y_GRADIENT(X,D,Ns)
+         endif
+
+         Y(1:NS,1) = YGRAD(1:NS,1)
+         GRAD(1:NS,1:D) = YGRAD(1:NS,2:(D+1))
+
+         if (present(S)) then
+            call COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew,S)
+         else 
+            call COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew)
+         endif
+      end subroutine
+
 end module
 
 program test
+   use adaptive_sequential_sampling, only : adaptive_ssck, mode, &
+      mode_sensitivity, order
+   implicit none
 
    integer :: D=1
    double precision :: xminmax(1,2)
-   xminmax(1,1) = 0
-   xminmax(1,2) = 4
+   xminmax(1,1) = 0.d0
+   xminmax(1,2) = 4.d0
 
-   call adaptive_ssck(func, grad, xminxmax, D)
+   mode = MODE_SENSITIVITY
+   order = 0
+   call adaptive_ssck(func, grad, xminmax, D)
    
    contains 
       function func(x,D)
-         integer :: D
-         double precision :: x(D,1)
+         integer,intent(in) :: D
+         double precision, intent(in) :: x(D,1)
          double precision :: func
          func = (x(1,1) - 1.0d0) ** 2
       end function
 
       function grad(x,D)
-         integer :: D
-         double precision :: x(D,1)
+         integer, intent(in) :: D
+         double precision, intent(in) :: x(D,1)
          double precision :: grad(D,1)
          grad = 2 * (x(1,1) - 1) 
       end function

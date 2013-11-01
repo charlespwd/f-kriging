@@ -16,7 +16,7 @@ program f
    double precision :: MeanL1
    character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat', dotsfile='d_dots.dat'
    character(len=20) :: func_name
-   character(len=20) :: datadir
+   character(len=50) :: datadir
    integer :: ii
 
    Order = 2

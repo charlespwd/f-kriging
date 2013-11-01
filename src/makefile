@@ -13,8 +13,8 @@ default : f.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL)
 sensitivity : s.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL)
 	gfortran $(PROFILE) -o ../bar s.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL) $(LDFLAGS) -J$(BINDIR)
 
-modular_sequential : adaptive_sequential_sampling.f90 $(MODULES) $(ROUTINES) 
-	gfortran $(PROFILE) -o ../spam adaptive_sequential_sampling.f90 $(MODULES) $(ROUTINES)
+modular : adaptive_sequential_sampling.f90 $(MODULES) $(ROUTINES) 
+	gfortran $(PROFILE) -o ../spam adaptive_sequential_sampling.f90 $(MODULES) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)
 
 %.o : %.f90
 	gfortran $(PROFILE) $(OPT) -c $< $(LDFLAGS) -J$(BINDIR)

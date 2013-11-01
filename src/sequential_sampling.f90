@@ -11,7 +11,6 @@ module sequential_sampling
    integer, parameter :: MODE_MSE = 0
    integer, parameter :: MODE_SENSITIVITY = 1
 
-
    contains
 
       ! sampler - finds the indexes of the points with the largest error

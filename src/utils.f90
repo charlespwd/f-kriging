@@ -8,16 +8,15 @@ module utils
    use sequential_sampling, only : MODE_MSE, MODE_SENSITIVITY
    implicit none
    contains
-      ! assumes D = 2
       subroutine printer(x,y,ntotal,nrow,D,filename,datafolder,iterate)
          integer, intent(in) :: ntotal, nrow, D
          integer, intent(in),optional :: iterate
-         character(len=20),intent(in), optional :: datafolder
+         character(len=50),intent(in), optional :: datafolder
          double precision, intent(in) :: x(ntotal,D), y(ntotal,1)
          double precision :: xt(D,ntotal), yt(1,ntotal)
          character(len=20), intent(in) :: filename
          character(len=20) :: wfilename
-         integer :: ii,j, fileid = 56
+         integer :: ii,j,dd, fileid = 56
          xt = transpose(x)
          yt = transpose(y)
          if (present(datafolder)) then
@@ -33,7 +32,8 @@ module utils
          open(fileid,FILE=adjustl(wfilename),status='replace')
          j = 1
          do ii=1,ntotal
-            write(fileid,*) xt(1,ii)," ",xt(2,ii)," ",yt(1,ii)
+            ! a cryptic way of printing all x's and then y
+            write(fileid,*) (xt(dd,ii)," ",dd=1,D), yt(1,ii)
             j = j+1
             if (j > nrow) then
                write(fileid,*) " " ! a blank line
