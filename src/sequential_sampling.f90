@@ -6,7 +6,9 @@
 module sequential_sampling
    use fort_arrange, only: sort
    use matrix, only: normalize, distance
-   use utils, only: m_SENSITIVITY, m_MSE
+
+   integer, parameter :: MODE_MSE = 0
+   integer, parameter :: MODE_SENSITIVITY = 1
 
    implicit none
 
@@ -140,9 +142,9 @@ module sequential_sampling
          
          do ii=1,nsnew         
          select case (mode) 
-               case(m_MSE) 
+               case(MODE_MSE) 
                   Eest(ii,1) = WMSE(ii,1) 
-               case(m_SENSITIVITY)
+               case(MODE_SENSITIVITY)
                   if ( .not. present(S)) then
                      print*, 'in sampling criterion, S not present'
                      stop

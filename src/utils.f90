@@ -5,9 +5,8 @@
 !     args
 !  dumpmat,vec,tensor - dumps content of arrays to STDOUT
 module utils
+   use sequential_sampling, only : MODE_MSE, MODE_SENSITIVITY
    implicit none
-   integer,parameter ::  m_MSE = 0
-   integer,parameter ::  m_SENSITIVITY = 1
    contains
       ! assumes D = 2
       subroutine printer(x,y,ntotal,nrow,D,filename,datafolder,iterate)
@@ -65,7 +64,7 @@ module utils
          xmax = (/1.d0,1.d0/)
          ! mode default value
          if (present(mode)) then
-            mode = m_MSE
+            mode = MODE_MSE 
          endif
          if (narg > 0) then
             i = 1
@@ -107,7 +106,7 @@ module utils
                      endif
                   case ("-s","--sensitivity")
                      if (present(mode)) then
-                        mode = m_SENSITIVITY
+                        mode = mode_sensitivity 
                      else 
                         print*, 'mode is not supported'
                         stop
@@ -116,7 +115,7 @@ module utils
                      if (present(deltans)) then
                         i = i+1
                         call get_command_argument(i,command)
-                        read(command,'(I10)') deltans
+                        read(command,'(i10)') deltans
                      else 
                         print*, 'deltans is not supported'
                         stop
@@ -125,14 +124,14 @@ module utils
                      if (present(order)) then
                         i = i+1
                         call get_command_argument(i,command)
-                        read(command,'(I10)') order
+                        read(command,'(i10)') order
                      else 
                         print*, 'order was not passed'
                         stop
                      endif
                   case ("-m","--mse")
                      if (present(mode)) then
-                        mode = m_MSE
+                        mode = MODE_MSE 
                      else
                         print*, 'mode is not supported'
                         stop

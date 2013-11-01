@@ -222,7 +222,6 @@ implicit none
             MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim)
          end do 
       end subroutine
-
         
 end module
 
