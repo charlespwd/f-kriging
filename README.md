@@ -1,13 +1,10 @@
 f-kriging
-
 ======================================================================
+
 Summary
 ----------------------------------------------------------------------
 This is a fortran code to perform cokriging interpolation.
  
-======================================================================
-
-======================================================================
 Installation Prerequesites
 ----------------------------------------------------------------------
 
@@ -21,5 +18,4 @@ The makefile is setup to use the llapack, lblas, lfort_arrange, llapack95
 and to include the following modules folders : 
 	/usr/lib/lapack95_modules/
 	/usr/lib/fortarrange_header/
-======================================================================
 

@@ -6,11 +6,11 @@
 module sequential_sampling
    use fort_arrange, only: sort
    use matrix, only: normalize, distance
+   implicit none
 
    integer, parameter :: MODE_MSE = 0
    integer, parameter :: MODE_SENSITIVITY = 1
 
-   implicit none
 
    contains
 

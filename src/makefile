@@ -1,16 +1,20 @@
-ROUTINES=kriging.o cokriging.o analytical_solver.o 
-MODULES=params.o analytical_functions.o grid.o utils.o matrix.o regression.o correlation.o sensitivity.o mle.o  sequential_sampling.o error.o
+ROUTINES = kriging.o cokriging.o 
+MODULES = params.o grid.o matrix.o regression.o correlation.o sensitivity.o mle.o  sequential_sampling.o error.o utils.o 
+ANALYTICAL = analytical_functions.o analytical_solver.o
 LDFLAGS=-I/usr/lib/lapack95_modules/ -I/usr/lib/fortarrange_header/ -lfort_arrange -llapack95 -llapack -lblas 
 BINDIR=../bin
 
 OPT = -O3
 #PROFILE=-pg #comment out if you don't want profiling
 
-default : f.f90 $(MODULES) $(ROUTINES)
-	gfortran $(PROFILE) -o ../foo f.f90 $(MODULES) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)
+default : f.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL)
+	gfortran $(PROFILE) -o ../foo f.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL) $(LDFLAGS) -J$(BINDIR)
 
-sensitivity : s.f90 $(MODULES) $(ROUTINES)
-	gfortran $(PROFILE) -o ../bar s.f90 $(MODULES) $(TEST) $(FUNCTIONS) $(CONSTRUCT) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)
+sensitivity : s.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL)
+	gfortran $(PROFILE) -o ../bar s.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL) $(LDFLAGS) -J$(BINDIR)
+
+modular_sequential : adaptive_sequential_sampling.f90 $(MODULES) $(ROUTINES) 
+	gfortran $(PROFILE) -o ../spam adaptive_sequential_sampling.f90 $(MODULES) $(ROUTINES)
 
 %.o : %.f90
 	gfortran $(PROFILE) $(OPT) -c $< $(LDFLAGS) -J$(BINDIR)
