@@ -1,20 +1,20 @@
-ROUTINES = kriging.o cokriging.o 
-MODULES = params.o grid.o matrix.o regression.o correlation.o sensitivity.o mle.o  sequential_sampling.o error.o utils.o 
+ROUTINES = kriging.o cokriging.o sequential_sampling.o 
+MODULES = params.o grid.o matrix.o regression.o correlation.o sensitivity.o mle.o error.o utils.o 
 ANALYTICAL = analytical_functions.o analytical_solver.o
 LDFLAGS=-I/usr/lib/lapack95_modules/ -I/usr/lib/fortarrange_header/ -lfort_arrange -llapack95 -llapack -lblas 
 BINDIR=../bin
 
-OPT = -O3
+OPT = -O3 
 #PROFILE=-pg #comment out if you don't want profiling
 
 default : f.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL)
-	gfortran $(PROFILE) -o ../foo f.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL) $(LDFLAGS) -J$(BINDIR)
+	gfortran $(OPT) $(PROFILE) -o ../foo f.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL) $(LDFLAGS) -J$(BINDIR)
 
 sensitivity : s.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL)
-	gfortran $(PROFILE) -o ../bar s.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL) $(LDFLAGS) -J$(BINDIR)
+	gfortran $(PROFILE) $(OPT) -o ../bar s.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL) $(LDFLAGS) -J$(BINDIR)
 
-modular : modular-test.f90 $(MODULES) $(ROUTINES) 
-	gfortran $(PROFILE) -o ../spam modular-test.f90 $(MODULES) $(ROUTINES) $(LDFLAGS) -J$(BINDIR)
+modular : modular-test.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL) 
+	gfortran $(PROFILE) $(OPT) -o ../spam modular-test.f90 $(MODULES) $(ROUTINES) $(ANALYTICAL) $(LDFLAGS) -J$(BINDIR)
 
 %.o : %.f90
 	gfortran $(PROFILE) $(OPT) -c $< $(LDFLAGS) -J$(BINDIR)

@@ -5,8 +5,9 @@
 !     args
 !  dumpmat,vec,tensor - dumps content of arrays to STDOUT
 module utils
-   use sequential_sampling, only : MODE_MSE, MODE_SENSITIVITY
    implicit none
+   integer, parameter :: MODE_MSE = 0
+   integer, parameter :: MODE_SENSITIVITY = 1
    contains
       subroutine printer(x,y,ntotal,nrow,D,filename,datafolder,iterate)
          integer, intent(in) :: ntotal, nrow, D
