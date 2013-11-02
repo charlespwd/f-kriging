@@ -21,14 +21,17 @@ module sequential_sampling
 
    contains
      ! adaptive_ssck - adaptive sequential sampling cokriging routine 
-      subroutine adaptive_ssck(func, fgrad, xminmax, D, iterate, datadirectory)
+      subroutine adaptive_ssck(func, fgrad, xminmax, D, iterate, datadirectory, &
+            optimize)
          use grid, only:vector_grid, columnGrid, LHS, grow2d
          use utils, only: printer, l1error
          use matrix, only: vector_range
+         use optimization, only: carpet_bombed_min
 
          ! arguments
          integer, intent(in) :: D
          integer, intent(in), optional :: iterate
+         integer, intent(in), optional :: optimize
          double precision, intent(in) :: xminmax(D,2) 
          character(len=50), intent(in), optional :: datadirectory
          interface true_function
@@ -47,10 +50,12 @@ module sequential_sampling
          end interface true_gradient
 
          ! work variables
+         integer :: fileid_err, fileid_optim
          integer :: Ns, NsNew, loopcount
          integer,allocatable :: newsamples(:)
          double precision,allocatable :: xnew(:,:),ynew(:,:)
          double precision,allocatable :: x(:,:),y(:,:)
+         double precision,allocatable :: x_star(:,:)
          double precision,allocatable :: grad(:,:)
          double precision,allocatable :: xmin(:), xmax(:)
          double precision,allocatable :: ygrad(:,:)
@@ -60,10 +65,12 @@ module sequential_sampling
          double precision,allocatable :: MSE(:,:)
          double precision,allocatable :: S(:,:)
          double precision,allocatable :: Eest(:,:)
+         double precision :: y_star(1,1)
          double precision :: MeanL1
          double precision :: samplingRadius 
          double precision :: maxerror
          character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat', dotsfile='d_dots.dat'
+         character(len=20) :: minfile='d_min.dat', optimfile='d_op.dat' 
          character(len=20) :: func_name, errfile, prefix
          character(len=50) :: datadir
          integer :: ii
@@ -73,6 +80,7 @@ module sequential_sampling
             datadir = datadirectory
          end if
          errfile= trim(datadir)//'/'//'e.dat'
+         optimfile= trim(datadir)//'/'//trim(optimfile)
 
          ns = nGridStart ** D
          nsnew = nGridRs ** D
@@ -85,12 +93,14 @@ module sequential_sampling
          allocate(ytrue(nsnew,1))
          allocate(x(ns,D))
          allocate(y(ns,1))
+         allocate(x_star(1,D))
          allocate(grad(ns,D))
          allocate(theta(d))
          allocate(mse(nsnew,1))
          allocate(eest(nsnew,1))
          allocate(psi(nsnew,1))
          allocate(S(nsnew,1))
+
          allocate(newsamples(delta_ns))
 
          xmin(1:D) = xminmax(1:D,1)
@@ -119,10 +129,21 @@ module sequential_sampling
          call printer(x,y,ns,1,D,dotsfile,datadir,loopcount)
          call printer(xnew,ynew,nsnew,nGridRs,D,rsfile,datadir,loopcount)
          call printer(xnew,ytrue,nsnew,nGridRs,D,truefile,datadir,loopcount)
-         open(67,file=adjustl(errfile),status='replace')
+
+         if (present(optimize)) then
+            x_star = carpet_bombed_min(ynew, xnew, D , nsnew , y_star)
+            print*, x_star
+            call printer(x_star, y_star, 1, 1, D, minfile, datadir, loopcount)
+            fileid_optim = 68
+            open(fileid_optim, file=adjustl(optimfile), status='replace')
+            write(fileid_optim, *) x_star, y_star
+         end if
+
+         fileid_err = 67
+         open(fileid_err,file=adjustl(errfile),status='replace')
          ! print error to file
          maxerror = l1error(ytrue,ynew,nsnew) 
-         write(67, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
+         write(fileid_err, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
 
          loopcount = 0
          ! sequential sampling loop
@@ -159,11 +180,18 @@ module sequential_sampling
             ! make fancy graphs
             call printer(x,y,ns,1,D,dotsfile,datadir,loopcount)
             call printer(xnew,ynew,nsnew,nGridRs,D,rsfile,datadir,loopcount)
-            write(67, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
-
+            write(fileid_err, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
+            if (present(optimize)) then
+               x_star = carpet_bombed_min(ynew, xnew, D, Nsnew, y_star)
+               call printer(x_star, y_star, 1, 1, D, minfile, datadir, loopcount)
+               write(fileid_optim, *) x_star, y_star
+            end if
          enddo
 
-         close(67)
+         close(fileid_err)
+         if(present(optimize)) then 
+            close(fileid_optim)
+         end if
          open(unit=67,file='loopcount.dat',status='replace')
          write(67,*) loopcount
          close(67)

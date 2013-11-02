@@ -5,14 +5,14 @@ program test
 
    integer :: D=2
    double precision :: xminmax(1,2)
-   xminmax(1:D,1) = -1.d0
-   xminmax(1:D,2) = 1.d0
+   xminmax(1:D,1) = -3.d0
+   xminmax(1:D,2) = 3.d0
 
    ngridstart = 3
    nfinal = 60
    mode = MODE_SENSITIVITY
-   order = 1
-   call adaptive_ssck(fcosine, gcosine, xminmax, 2)
+   order = 2
+   call adaptive_ssck(f2, g2, xminmax, 2, optimize=1)
    
    contains 
       function func(x,D)
