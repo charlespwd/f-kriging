@@ -15,7 +15,7 @@ module linesearch_module
          double precision, intent(out) :: x_star(D,1)
          double precision, intent(in) :: x_initial(D,1)
          interface func
-            double precision pure function f(x,D)
+            double precision  function f(x,D)
                integer, intent(in) :: D
                double precision, dimension(D,1),intent(in) :: x
             end function
@@ -63,7 +63,7 @@ module linesearch_module
          double precision, intent(in) :: x_k(D,1)
          double precision :: grad_cfde(D,1)
          interface fnc
-            double precision pure function f(x,D)
+            double precision  function f(x,D)
                integer, intent(in) :: D
                double precision, intent(in) :: x(D,1)
             end function
@@ -90,7 +90,7 @@ module linesearch_module
          double precision, intent(in) :: g_k(D,1)
          double precision, intent(in) :: p_k(D,1)
          interface fnc
-            double precision pure function f(x,D)
+            double precision  function f(x,D)
                integer, intent(in) :: D
                double precision, intent(in) :: x(D,1)
             end function

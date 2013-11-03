@@ -1,6 +1,6 @@
 ! this module contains everything related to sequential sampling
 !  get_sampling_radius(xmin,xmax,D,ns)
-!  construct_density_function(Psi,Xnew,X,XMAX,XMIN,D,nsnew,ns)
+!  construct_density_function(Psi,Xnew,xold,XMAX,XMIN,D,nsnew,ns)
 !  samplingcriterion(Eest,MSE,nsnew,PSI,S,CV)
 !  construct_insertion_stack(eest,ns) 
 module sequential_sampling
@@ -26,7 +26,7 @@ module sequential_sampling
          use grid, only:vector_grid, columnGrid, LHS, grow2d
          use utils, only: printer, l1error
          use matrix, only: vector_range
-         use optimization, only: carpet_bombed_min
+         use optimization, only: carpet_bombed_min, kriging_linesearched_min
 
          ! arguments
          integer, intent(in) :: D
@@ -35,16 +35,16 @@ module sequential_sampling
          double precision, intent(in) :: xminmax(D,2) 
          character(len=50), intent(in), optional :: datadirectory
          interface true_function
-            function func(x,D) 
+            function func(xold,D) 
                integer, intent(in) :: D
-               double precision, intent(in) :: x(D,1)
+               double precision, intent(in) :: xold(D,1)
                double precision :: func
             end function
          end interface true_function
          interface true_gradient
-            function fgrad(x,D)
+            function fgrad(xold,D)
                integer, intent(in) :: D
-               double precision, intent(in) :: x(D,1)
+               double precision, intent(in) :: xold(D,1)
                double precision :: fgrad(D,1)
             end function
          end interface true_gradient
@@ -54,7 +54,7 @@ module sequential_sampling
          integer :: Ns, NsNew, loopcount
          integer,allocatable :: newsamples(:)
          double precision,allocatable :: xnew(:,:),ynew(:,:)
-         double precision,allocatable :: x(:,:),y(:,:)
+         double precision,allocatable :: xold(:,:),yold(:,:)
          double precision,allocatable :: x_star(:,:)
          double precision,allocatable :: grad(:,:)
          double precision,allocatable :: xmin(:), xmax(:)
@@ -91,8 +91,8 @@ module sequential_sampling
          allocate(ynew(nsnew,1))
          allocate(ygrad(nsnew,D+1))
          allocate(ytrue(nsnew,1))
-         allocate(x(ns,D))
-         allocate(y(ns,1))
+         allocate(xold(ns,D))
+         allocate(yold(ns,1))
          allocate(x_star(1,D))
          allocate(grad(ns,D))
          allocate(theta(d))
@@ -107,7 +107,7 @@ module sequential_sampling
          xmax(1:D) = xminmax(1:D,2)
 
          ! make grids
-         call columnGrid(x,xmin,xmax,d,nGridStart)
+         call columnGrid(xold,xmin,xmax,d,nGridStart)
          call columnGrid(xnew,xmin,xmax,d,nGridRs)
 
          ! true solution (ouch)
@@ -122,21 +122,21 @@ module sequential_sampling
 
          ! perform cokriging, sensitivity analysis, etc. 
          loopcount = 0
-         call c_solver(xnew,ynew,theta,mse,xmin,xmax,x,y,Grad,Order,D,Ns,NsNew,Y_GRADIENT,&
+         call c_solver(xnew,ynew,theta,mse,xmin,xmax,xold,yold,Grad,Order,D,Ns,NsNew,Y_GRADIENT,&
             S=S) 
 
           ! make fancy graphs
-         call printer(x,y,ns,1,D,dotsfile,datadir,loopcount)
+         call printer(xold,yold,ns,1,D,dotsfile,datadir,loopcount)
          call printer(xnew,ynew,nsnew,nGridRs,D,rsfile,datadir,loopcount)
          call printer(xnew,ytrue,nsnew,nGridRs,D,truefile,datadir,loopcount)
 
          if (present(optimize)) then
-            x_star = carpet_bombed_min(ynew, xnew, D , nsnew , y_star)
-            print*, x_star
+            x_star = carpet_bombed_min(ytrue, xnew, D , nsnew , y_star)
+            x_star = kriging_linesearched_min(x_star, xold, yold, theta, order, d, ns)
             call printer(x_star, y_star, 1, 1, D, minfile, datadir, loopcount)
             fileid_optim = 68
             open(fileid_optim, file=adjustl(optimfile), status='replace')
-            write(fileid_optim, *) x_star, y_star
+            write(fileid_optim, *) x_star, y_star, 0.d0
          end if
 
          fileid_err = 67
@@ -154,37 +154,37 @@ module sequential_sampling
             samplingradius = get_sampling_radius(xmin,xmax,D,ns)
 
             ! construct the new eest stack
-            call construct_density_function(psi,xnew,x,xmax,xmin,D,nsnew,ns)
+            call construct_density_function(psi,xnew,xold,xmax,xmin,D,nsnew,ns)
             call samplingcriterion(eest,mse,nsnew,psi,mode,S=S)
 
             ! find the points to add to the set
-            call sampler(newsamples,Eest,XNEW,X,samplingRadius,delta_ns,D,nsnew,ns)
+            call sampler(newsamples,Eest,XNEW,xold,samplingRadius,delta_ns,D,nsnew,ns)
 
             ! add the points to the existing set
-            call grow2d(x,delta_ns)
-            call grow2d(y,delta_ns)
+            call grow2d(xold,delta_ns)
+            call grow2d(yold,delta_ns)
             call grow2d(grad,delta_ns)
             do ii=1,delta_ns
-               x(ns+ii,1:D) = xnew(newsamples(ii),1:D)    
+               xold(ns+ii,1:D) = xnew(newsamples(ii),1:D)    
             enddo
             
             ! increment number of snapshots
             ns = ns + delta_ns
             
             ! perform cokriging, sensitivity analysis, etc. 
-            call c_solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,Order,D,Ns,NsNew,Y_GRADIENT, &
+            call c_solver(xnew,ynew,theta,mse,xmin,xmax,xold,yold,grad,Order,D,Ns,NsNew,Y_GRADIENT, &
                S=S,DELTANS=delta_ns)
             
             loopcount = loopcount+1
 
             ! make fancy graphs
-            call printer(x,y,ns,1,D,dotsfile,datadir,loopcount)
+            call printer(xold,yold,ns,1,D,dotsfile,datadir,loopcount)
             call printer(xnew,ynew,nsnew,nGridRs,D,rsfile,datadir,loopcount)
             write(fileid_err, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
             if (present(optimize)) then
-               x_star = carpet_bombed_min(ynew, xnew, D, Nsnew, y_star)
+               x_star = kriging_linesearched_min(x_star, xold, yold, theta, order, d, ns)
                call printer(x_star, y_star, 1, 1, D, minfile, datadir, loopcount)
-               write(fileid_optim, *) x_star, y_star
+               write(fileid_optim, *) x_star, y_star, loopcount
             end if
          enddo
 
@@ -197,17 +197,17 @@ module sequential_sampling
          close(67)
 
          contains 
-            function Y_GRADIENT(x, D, ns)
+            function Y_GRADIENT(xold, D, ns)
                ! arguments
                integer, intent(in) :: D, ns
-               double precision, intent(in) :: x(Ns,D)
+               double precision, intent(in) :: xold(Ns,D)
                double precision :: Y_GRADIENT(NS,1+D)
                
                ! work
                integer :: ii
                double precision :: xt(D,ns)
                double precision :: yt(1+D, ns)
-               xt = transpose(x)
+               xt = transpose(xold)
                do ii=1,ns
                   Yt(1,ii) = func(xt(:,ii), D)
                   Yt(2:(D+1),ii:ii) = fgrad(xt(:,ii),D)
@@ -217,7 +217,7 @@ module sequential_sampling
       end subroutine
 
       ! cokriging solver 
-      subroutine c_solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,X,Y,GRAD,Order,D,Ns,NsNew,&
+      subroutine c_solver(XNEW,YNEW,theta,MSE,XMIN,XMAX,xold,yold,GRAD,Order,D,Ns,NsNew,&
             Y_GRADIENT, S, deltans)
          use PARAMS, only: Raug
          use cokrigingmodule, only:cokriging
@@ -234,9 +234,9 @@ module sequential_sampling
          double precision, intent(inout) :: GRAD(Ns,D)
          double precision, intent(out), optional, target :: S(nsnew,1)
          interface true_function
-            function Y_GRADIENT(x,D,ns)
+            function Y_GRADIENT(xold,D,ns)
                integer, intent(in) :: D, ns
-               double precision, intent(in) :: x(ns,D)
+               double precision, intent(in) :: xold(ns,D)
                double precision :: Y_GRADIENT(ns,1+D)
             end function
          end interface true_function
@@ -244,30 +244,30 @@ module sequential_sampling
          ! work variables
          double precision :: YGRAD(Ns,D+1)
          double precision,allocatable :: tmpgrad(:,:)
-         double precision, intent(inout) :: Y(Ns,1)
-         double precision, intent(in) :: X(Ns,D)
+         double precision, intent(inout) :: yold(Ns,1)
+         double precision, intent(in) :: xold(Ns,D)
 
-         ! only calculate grad and y @ new locations
+         ! only calculate grad and yold @ new locations
          if (present(deltans)) then
             allocate(tmpgrad(deltans,D+1))
             ! copy old stuff
-            YGRAD(1:ns-deltans,1) = Y(1:ns,1)
+            YGRAD(1:ns-deltans,1) = yold(1:ns,1)
             YGRAD(1:ns-deltans,2:D+1) = Grad(1:ns,1:D)
             ! calculate new stuff
-            tmpgrad = Y_GRADIENT(X(ns-deltans+1:ns,:),D,deltans)
+            tmpgrad = Y_GRADIENT(xold(ns-deltans+1:ns,:),D,deltans)
             ! put it in ygrad
             YGRAD(ns-deltans+1:ns,1:D+1) = tmpgrad(1:deltans,1:D+1)
          else      
-            YGRAD = Y_GRADIENT(X,D,Ns)
+            YGRAD = Y_GRADIENT(xold,D,Ns)
          endif
 
-         Y(1:NS,1) = YGRAD(1:NS,1)
+         yold(1:NS,1) = YGRAD(1:NS,1)
          GRAD(1:NS,1:D) = YGRAD(1:NS,2:(D+1))
 
          if (present(S)) then
-            call COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew,S)
+            call COKRIGING(XNEW,YNEW,theta,MSE,xold,yold,GRAD,Raug,Order,D,Ns,NsNew,S)
          else 
-            call COKRIGING(XNEW,YNEW,theta,MSE,X,Y,GRAD,Raug,Order,D,Ns,NsNew)
+            call COKRIGING(XNEW,YNEW,theta,MSE,xold,yold,GRAD,Raug,Order,D,Ns,NsNew)
          endif
       end subroutine
 
@@ -344,10 +344,10 @@ module sequential_sampling
       !  so that this density function is 0 at snapshot locations
       !  and more than that everywhere else
       !  the result is 'normalized'
-      subroutine construct_density_function(Psi,Xnew,X,XMAX,XMIN,D,nsnew,ns)
+      subroutine construct_density_function(Psi,Xnew,xold,XMAX,XMIN,D,nsnew,ns)
          ! arguments
          integer, intent(in) :: nsnew, ns, d
-         double precision, intent(in) :: Xnew(nsnew,D), X(ns,D)
+         double precision, intent(in) :: Xnew(nsnew,D), xold(ns,D)
          double precision, intent(in) :: XMAX(D), XMIN(D)
          double precision, intent(out) :: Psi(nsnew,1)
          
@@ -361,7 +361,7 @@ module sequential_sampling
             do jj=1,ns
                dist=0.0d0
                do pp=1,D
-                  dist = dist + (xnew(ii,pp) - x(jj,pp)) ** 2
+                  dist = dist + (xnew(ii,pp) - xold(jj,pp)) ** 2
                enddo
                dist = dist ** (0.5d0)
                if ( dist < mindist ) then

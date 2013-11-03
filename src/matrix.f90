@@ -9,7 +9,6 @@ module matrix
 
    contains
       function spectral_norm(A,m,n)
-
          integer, intent(in) :: m,n
          double precision, intent(in) :: A(m,n)
          double precision :: spectral_norm
@@ -46,6 +45,20 @@ module matrix
 
          do dd=1,D
             X(:,dd) = X(:,dd) / (xmax(dd) - xmin(dd))  
+         end do
+      end subroutine
+
+      ! does the opposite of rescale
+      subroutine unscale(X, D, Ns, XMIN, XMAX)
+         integer, intent(in) :: Ns, D
+         double precision, intent(in) :: XMAX(D), XMIN(D)
+         double precision, intent(INOUT) :: X(Ns,D)
+         integer :: dd, ii
+
+         double precision :: mymax
+
+         do dd=1,D
+            X(:,dd) = X(:,dd) * (xmax(dd) - xmin(dd))  
          end do
       end subroutine
 

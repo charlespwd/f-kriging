@@ -148,7 +148,8 @@ implicit none
       !  this function assumes you inverted R already, did some matrix
       !  multiplications that are constant and independent of the new snapshot
       !  location and calculates y^(x^)  
-      subroutine fast_kriging_function(YNEW, XNEW, X, theta, beta, RinvYmFb, sigma2, Order, D, Ns, Nsnew)
+      subroutine fast_kriging_function(YNEW, XNEW, X, theta, beta, &
+            RinvYmFb, sigma2, Order, D, Ns, Nsnew)
          use PARAMS, only:Pc
          use correlation, only: get_rxy
          use regression, only: construct_f

@@ -12,7 +12,7 @@ do for [i=0:nmax] {
 		outfile = sprintf('%s/%s-o%d-ns%d.png',imgpath,funcname,order,i)
 	}
   	set output outfile
-	if (exists("optim")) {
+	if (exists("optimize")) {
 		splot rs(i) with lines t "Cokriging", dtrue(i) with lines t "Analytical", ddots(i) with points pt 7 t "Snapshots", dstar(i) with points pt 3 ps 3 t "cb-min"
 	} else {
 		splot rs(i) with lines t "Cokriging", dtrue(i) with lines t "Analytical", ddots(i) with points pt 7 t "Snapshots"

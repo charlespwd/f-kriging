@@ -19,11 +19,39 @@ module optimization
             endif
          end do
          
-         print*, imin
-         print*, D
-         print*, x(imin,1:D)
+         print*, x(imin,1:D), currentMin
          carpet_bombed_min(1,1:D) = x(imin,1:D)
          y_star(1,1) = currentMin
+      end function
+
+      function kriging_linesearched_min(x_guess, xold, yold, theta, order, d, ns)
+         use surrogate_model, only : kriging_function, init_kriging_constants, &
+            xmin, xmax
+         use linesearch_module, only : linesearch
+         use matrix, only : rescale, unscale
+         integer, intent(in) :: order, d, ns
+         double precision, intent(in) :: x_guess(1,D)
+         double precision, intent(in) :: xold(ns,D)
+         double precision, intent(in) :: yold(ns,1)
+         double precision, intent(in) :: theta(D)
+         double precision :: kriging_linesearched_min(1,D)
+         double precision :: x_star(D,1), xt_guess(D,1)
+         double precision :: x_guess_scaled(1,D)
+
+         call init_kriging_constants(xold, yold, theta, order, d, ns)
+
+         ! kriging works on a rescaled domain. Therefore, the guess provided to
+         ! the line search algorithm should be rescaled as well.
+         x_guess_scaled = x_guess
+         call rescale(x_guess_scaled, D, ns=1, xmin=xmin, xmax=xmax) 
+
+         ! the line search algorithm works with column vectors. 
+         xt_guess = transpose(x_guess)
+
+         call linesearch(x_star, xt_guess, kriging_function, D)
+
+         kriging_linesearched_min = transpose(x_star)
+         call unscale(kriging_linesearched_min, D, ns=1, xmin=xmin, xmax=xmax)
       end function
 end module
 

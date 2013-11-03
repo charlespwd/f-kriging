@@ -1,6 +1,7 @@
-ROUTINES = kriging.o cokriging.o sequential_sampling.o 
+ROUTINES = cokriging.o sequential_sampling.o 
 MODULES = params.o grid.o matrix.o regression.o correlation.o \
-			 sensitivity.o mle.o error.o utils.o optimization.o linesearch.o 
+			 sensitivity.o mle.o error.o utils.o kriging.o surrogate_model.o \
+			 linesearch.o optimization.o  
 ANALYTICAL = analytical_functions.o analytical_solver.o
 LDFLAGS=-I/usr/lib/lapack95_modules/ -I/usr/lib/fortarrange_header/ -lfort_arrange -llapack95 -llapack -lblas 
 BINDIR=../bin
