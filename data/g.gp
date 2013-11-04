@@ -13,7 +13,8 @@ do for [i=0:nmax] {
 	}
   	set output outfile
 	if (exists("optimize")) {
-		splot rs(i) with lines t "Cokriging", dtrue(i) with lines t "Analytical", ddots(i) with points pt 7 t "Snapshots", dstar(i) with points pt 3 ps 3 t "cb-min"
+		splot rs(i) with lines t "Cokriging", dtrue(i) with lines t "Analytical", \
+		ddots(i) with points pt 7 t "Snapshots", dstar(i) with points pt 3 ps 3 t "ls-min"
 	} else {
 		splot rs(i) with lines t "Cokriging", dtrue(i) with lines t "Analytical", ddots(i) with points pt 7 t "Snapshots"
 	}

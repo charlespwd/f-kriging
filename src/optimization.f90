@@ -24,19 +24,22 @@ module optimization
          y_star(1,1) = currentMin
       end function
 
-      function kriging_linesearched_min(x_guess, xold, yold, theta, order, d, ns)
+      function kriging_linesearched_min(x_guess, xold, yold, theta, order, d, ns, y_star, info)
          use surrogate_model, only : kriging_function, init_kriging_constants, &
             xmin, xmax
          use linesearch_module, only : linesearch
          use matrix, only : rescale, unscale
          integer, intent(in) :: order, d, ns
+         integer, intent(out), optional :: info ! 1 if out of search domain 
          double precision, intent(in) :: x_guess(1,D)
          double precision, intent(in) :: xold(ns,D)
          double precision, intent(in) :: yold(ns,1)
          double precision, intent(in) :: theta(D)
+         double precision, intent(out) :: y_star(1,1)
          double precision :: kriging_linesearched_min(1,D)
          double precision :: x_star(D,1), xt_guess(D,1)
          double precision :: x_guess_scaled(1,D)
+         integer :: i
 
          call init_kriging_constants(xold, yold, theta, order, d, ns)
 
@@ -48,10 +51,29 @@ module optimization
          ! the line search algorithm works with column vectors. 
          xt_guess = transpose(x_guess)
 
-         call linesearch(x_star, xt_guess, kriging_function, D)
+         call linesearch(x_star, xt_guess, kriging_function, D, y_star(1,1))
 
          kriging_linesearched_min = transpose(x_star)
          call unscale(kriging_linesearched_min, D, ns=1, xmin=xmin, xmax=xmax)
+         
+         if (present(info)) then
+            info = 0
+         end if
+         do i=1,D
+            if (kriging_linesearched_min(1,i) < xmin(i) &
+                .or. &
+                kriging_linesearched_min(1,i) > xmax(i) ) then
+               if(present(info)) then 
+                  print *,  "min out of domain", kriging_linesearched_min(i,1),&
+                     xmin(i), xmax(i)
+                  info = 1
+               else
+                  print *,  "minimum out of domain"
+                  stop
+               end if
+            end if
+         end do
+         
       end function
 end module
 

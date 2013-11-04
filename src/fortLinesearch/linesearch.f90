@@ -9,11 +9,12 @@ module linesearch_module
    double precision :: h = 1.d-10 ! cfde step size
 
    contains
-      subroutine linesearch(x_star, x_initial, f, D)
+      subroutine linesearch(x_star, x_initial, f, D, y_star)
          ! arguments 
          integer, intent(in) :: D
          double precision, intent(out) :: x_star(D,1)
          double precision, intent(in) :: x_initial(D,1)
+         double precision, intent(out), optional :: y_star
          interface func
             double precision  function f(x,D)
                integer, intent(in) :: D
@@ -53,6 +54,9 @@ module linesearch_module
             condition = sum(abs(g_k))
          enddo
          x_star = x_kp
+         if (present(y_star)) then
+            y_star = f(x_star,D)
+         end if
       end subroutine
 
       ! grad_cfde
