@@ -55,8 +55,12 @@ double precision function get_mse(sigma2,F,Rinv,rx,D,Ns,fdim)
    get_mse = abs(sigma2 * (term1 - term2 + term3))
 end function 
 
- ! sigma2 * (1 - [ft(x); rt(x)]**T * [ 0 Ft ; F R] * [f(x); r(x)]) 
-double precision function martinmse(sigma2, fx, rx, F, R, ns, fdim)
+ ! MARTIN HAS A TYPO IN IT, it says ^-1 in Sacks' 
+ ! sigma2 * (1 - [ft(x); rt(x)]**T * [ 0 Ft ; F R]^-1 * [f(x); r(x)]) 
+double precision function martin_mse(sigma2, fx, rx, F, R, ns, fdim)
+   use LA_PRECISION, only: WP=>DP
+   use F95_LAPACK, only: LA_GESV
+   use matrix, only: eye
    implicit none
    integer, intent(in) :: fdim, ns
    double precision, intent(in) :: sigma2
@@ -66,6 +70,7 @@ double precision function martinmse(sigma2, fx, rx, F, R, ns, fdim)
    double precision :: Ft(fdim,ns)
    double precision :: fxrx(fdim+ns,1)
    double precision :: ctrblock(fdim+ns,fdim+ns)
+   double precision :: I(fdim+ns, fdim+ns)
    double precision :: tmp(1,fdim+ns)
    double precision :: res(1,1)
    integer :: ii, jj
@@ -83,17 +88,20 @@ double precision function martinmse(sigma2, fx, rx, F, R, ns, fdim)
    !  R
    ctrblock(fdim+1:fdim+ns, fdim+1:fdim+ns) = R(1:ns,1:ns)
 
-   ! tmp = fxrx**T * cntrblock 
+   call eye(I,fdim+ns)
+   call LA_GESV(ctrblock,I)
+
+   ! tmp = fxrx**T * cntrblock^-1
    ! [1,fdim+ns] = [fdim+ns,1] ** T * [fdim+ns,fdim+ns]
    call dgemm('t','n',1,fdim+ns,fdim+ns,1.0d0, fxrx,fdim+ns, &
-      ctrblock,fdim+ns, 0.0d0,tmp,1)
+      I,fdim+ns, 0.0d0,tmp,1)
 
    ! res = (-1.0d0) * tmp * fxrx + 1.0d0 * res
    res(1,1) = 1.0d0
    call dgemm('n','n',1,1,fdim+ns,(-1.0d0), tmp,1, fxrx,fdim+ns, &
       1.0d0, res,1)
    
-   martinmse = sigma2 * res(1,1)
+   martin_mse = sigma2 * res(1,1)
 end function
 
 ! sigma2 * (1 + u**T * (F**T * Rinv * F)inv * u - r**T *Rinv * r)

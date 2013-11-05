@@ -197,7 +197,7 @@ implicit none
          use PARAMS, only:Pc
          use correlation, only: get_rxy
          use regression, only: construct_f
-         use error, only: lophaven_mse
+         use error, only: lophaven_mse, marin_mse
          integer, intent(in) :: D, Ns, NsNew, Order, fdim
          double precision, intent(in) :: XNEW(NsNew,D)
          double precision, intent(out) :: MSE(nsnew)
@@ -220,7 +220,8 @@ implicit none
                rx(jj,1) = get_rxy(theta,xnew(ii,:),x(jj,:),D,Pc)
             end do
 
-            MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim)
+            MSE(ii) = martin_mse(sigma2, fx, rx, F, R, ns, fdim)
+!            MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim)
          end do 
       end subroutine
         
