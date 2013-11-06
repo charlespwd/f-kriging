@@ -220,7 +220,7 @@ implicit none
                rx(jj,1) = get_rxy(theta,xnew(ii,:),x(jj,:),D,Pc)
             end do
 
-            MSE(ii) = martin_mse(sigma2, fx, rx, F, R, ns, fdim)
+            MSE(ii) = martin_mse(sigma2, fx, rx, F, R, ns, fdim, ii)
 !            MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim)
          end do 
       end subroutine

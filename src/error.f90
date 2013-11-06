@@ -1,5 +1,6 @@
 module error
    implicit none
+   double precision, allocatable :: cntrblock_inv(:,:)
    contains
 !! 
 ! get_mse
@@ -57,12 +58,12 @@ end function
 
  ! MARTIN HAS A TYPO IN IT, it says ^-1 in Sacks' 
  ! sigma2 * (1 - [ft(x); rt(x)]**T * [ 0 Ft ; F R]^-1 * [f(x); r(x)]) 
-double precision function martin_mse(sigma2, fx, rx, F, R, ns, fdim)
+double precision function martin_mse(sigma2, fx, rx, F, R, ns, fdim, iter)
    use LA_PRECISION, only: WP=>DP
    use F95_LAPACK, only: LA_GESV
    use matrix, only: eye
    implicit none
-   integer, intent(in) :: fdim, ns
+   integer, intent(in) :: fdim, ns, iter
    double precision, intent(in) :: sigma2
    double precision, intent(in) :: fx(fdim,1), rx(ns,1)
    double precision, intent(in) :: F(ns,fdim), R(ns,ns)
@@ -78,23 +79,36 @@ double precision function martin_mse(sigma2, fx, rx, F, R, ns, fdim)
    fxrx(fdim+1:ns,1) = rx(1:ns,1)
    Ft = transpose(F)
 
-   ! construct [0 Ft; F R]
-   !  0
-   ctrblock(1:fdim,1:fdim) = 0.d0
-   !  F
-   ctrblock(fdim+1:fdim+ns, 1:fdim) = F(1:ns,1:fdim)
-   !  Ft 
-   ctrblock(1:fdim, fdim+1:fdim+ns) = Ft(1:fdim,1:ns)
-   !  R
-   ctrblock(fdim+1:fdim+ns, fdim+1:fdim+ns) = R(1:ns,1:ns)
+   ! The following block is present for code optimization. The inverse of the center
+   ! block in Martin's MSE is independent of the new snapshot location. For this
+   ! reason, I include the following deallocate/allocate/calculate block so that
+   ! I do not need to perform a matrix inversion at every MSE calculation and to
+   ! maintain the modularity of the MSE function. The matrix inversion is only
+   ! performed for the first x_new.
+   if (iter == 1) then
+      if (allocated(cntrblock_inv)) then
+         deallocate(cntrblock_inv)
+      end if
+      allocate(cntrblock_inv(fdim+ns, fdim+ns))
+      ! construct [0 Ft; F R]
+      !  0
+      ctrblock(1:fdim,1:fdim) = 0.d0
+      !  F
+      ctrblock(fdim+1:fdim+ns, 1:fdim) = F(1:ns,1:fdim)
+      !  Ft 
+      ctrblock(1:fdim, fdim+1:fdim+ns) = Ft(1:fdim,1:ns)
+      !  R
+      ctrblock(fdim+1:fdim+ns, fdim+1:fdim+ns) = R(1:ns,1:ns)
 
-   call eye(I,fdim+ns)
-   call LA_GESV(ctrblock,I)
+      call eye(I,fdim+ns)
+      cntrblock_inv = I
+      call LA_GESV(ctrblock,cntrblock_inv)
+   end if
 
    ! tmp = fxrx**T * cntrblock^-1
    ! [1,fdim+ns] = [fdim+ns,1] ** T * [fdim+ns,fdim+ns]
    call dgemm('t','n',1,fdim+ns,fdim+ns,1.0d0, fxrx,fdim+ns, &
-      I,fdim+ns, 0.0d0,tmp,1)
+      cntrblock_inv,fdim+ns, 0.0d0,tmp,1)
 
    ! res = (-1.0d0) * tmp * fxrx + 1.0d0 * res
    res(1,1) = 1.0d0
