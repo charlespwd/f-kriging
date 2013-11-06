@@ -23,6 +23,7 @@ program sprogram
    double precision :: MeanL1
    double precision :: samplingRadius 
    double precision :: maxerror
+   real :: start, finish
    character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat', dotsfile='d_dots.dat'
    character(len=20) :: func_name, errfile
    character(len=50) :: datadir
@@ -64,6 +65,7 @@ program sprogram
    theta = (/-1,-1/)
    ns = ns ** D
    ! perform cokriging, sensitivity analysis, etc. 
+   call cpu_time(start)
    call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,Grad,Order,D,Ns,NsNew,func_name,&
       S=S) 
 
@@ -74,7 +76,9 @@ program sprogram
    open(67,file=adjustl(errfile),status='replace')
    ! print error to file
    maxerror = l1error(ytrue,ynew,nsnew) 
-   write(67, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
+   call cpu_time(finish)
+   write(67, *) ns, l1error(ytrue,ynew,nsnew), &
+      l1error(ytrue,ynew,nsnew) / maxerror, finish-start
    
    loopcount = 0
    ! sequential sampling loop
@@ -113,7 +117,9 @@ program sprogram
       ! make fancy graphs
       call printer(x,y,ns,1,D,dotsfile,datadir,loopcount)
       call printer(xnew,ynew,nsnew,ngrid,D,rsfile,datadir,loopcount)
-      write(67, *) ns, l1error(ytrue,ynew,nsnew), l1error(ytrue,ynew,nsnew) / maxerror
+      call cpu_time(finish)
+      write(67, *) ns, l1error(ytrue,ynew,nsnew), &
+         l1error(ytrue,ynew,nsnew) / maxerror, finish-start
 
    enddo
 

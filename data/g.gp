@@ -8,9 +8,6 @@ ddots(n) = sprintf("d_dots.dat%03d",n)
 dstar(n) = sprintf("d_min.dat%03d",n)
 do for [i=0:nmax] {
   	outfile = sprintf('%s/%s-ns%d.png',imgpath,funcname,i)
-	if(exists("order")) { 
-		outfile = sprintf('%s/%s-o%d-ns%d.png',imgpath,funcname,order,i)
-	}
   	set output outfile
 	if (exists("optimize")) {
 		splot rs(i) with lines t "Cokriging", dtrue(i) with lines t "Analytical", \

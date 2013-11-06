@@ -11,7 +11,6 @@ if (! exists("order")) {
 	esensm(n) = sprintf('e%ssensitivity%dmartin.dat',n,order)
 	emsel(n) = sprintf('e%smse%dlophaven.dat',n,order)
 	esensl(n) = sprintf('e%ssensitivity%dlophaven.dat',n,order)
-
 }
 set log y
 set xlabel 'Number of Snapshots'

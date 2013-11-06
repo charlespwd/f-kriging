@@ -46,6 +46,8 @@ module utils
 
       subroutine process_command_input(funcname,Ns,Ngrid,xmin,xmax,nfinal, &
             mode,deltans, order)
+         use kriging_module, only : MSE_MODE_SELECTION
+         use error, only : MSE_MODE_ARTHUR, MSE_MODE_LOPHAVEN, MSE_MODE_MARTIN
          integer :: ns, nsnew, ngrid
          integer, intent(inout), optional :: nfinal
          integer, intent(inout), optional :: mode !! mse=0, sensitivy=1
@@ -137,6 +139,12 @@ module utils
                         print*, 'mode is not supported'
                         stop
                      endif
+                  case ("--arthur")
+                     MSE_MODE_SELECTION = MSE_MODE_ARTHUR
+                  case ("--lophaven")
+                     MSE_MODE_SELECTION = MSE_MODE_LOPHAVEN
+                  case ("--martin") 
+                     MSE_MODE_SELECTION = MSE_MODE_MARTIN 
                   case ("-h","--help") 
                      print*, "SYNOPSIS"
                      print*, "     ./bar [options]"

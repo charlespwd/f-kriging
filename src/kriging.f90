@@ -37,7 +37,9 @@
 !   are invited to read the paper by Lappo for the details on the iterative MLE
 !   solver. See optimize_theta_mle for implementation. 
 module kriging_module
-implicit none
+   use error, only : MSE_MODE_MARTIN, MSE_MODE_ARTHUR, MSE_MODE_LOPHAVEN 
+   implicit none
+   integer :: MSE_MODE_SELECTION = MSE_MODE_LOPHAVEN ! by default
    contains
 
       subroutine precondition(x,xn,xold,xnew,D,ns,nsnew)
@@ -197,7 +199,7 @@ implicit none
          use PARAMS, only:Pc
          use correlation, only: get_rxy
          use regression, only: construct_f
-         use error, only: lophaven_mse, martin_mse
+         use error, only: lophaven_mse, martin_mse, arthur_mse
          integer, intent(in) :: D, Ns, NsNew, Order, fdim
          double precision, intent(in) :: XNEW(NsNew,D)
          double precision, intent(out) :: MSE(nsnew)
@@ -220,8 +222,17 @@ implicit none
                rx(jj,1) = get_rxy(theta,xnew(ii,:),x(jj,:),D,Pc)
             end do
 
-            MSE(ii) = martin_mse(sigma2, fx, rx, F, R, ns, fdim, ii)
-!            MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim)
+            select case (MSE_MODE_SELECTION)
+               case (MSE_MODE_LOPHAVEN)
+                  MSE(ii) = lophaven_mse(sigma2, fx, rx, F, R, Rinv, ns, fdim, ii)
+               case (MSE_MODE_MARTIN)
+                  MSE(ii) = martin_mse(sigma2, fx, rx, F, R, ns, fdim, ii)
+               case (MSE_MODE_ARTHUR)
+                  MSE(ii) = arthur_mse(sigma2,F,Rinv,rx,D,Ns,fdim)
+               case default
+                  print*, 'MSE mode not supported'
+                  stop
+            end select
          end do 
       end subroutine
         
