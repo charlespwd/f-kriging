@@ -197,7 +197,7 @@ implicit none
          use PARAMS, only:Pc
          use correlation, only: get_rxy
          use regression, only: construct_f
-         use error, only: lophaven_mse, marin_mse
+         use error, only: lophaven_mse, martin_mse
          integer, intent(in) :: D, Ns, NsNew, Order, fdim
          double precision, intent(in) :: XNEW(NsNew,D)
          double precision, intent(out) :: MSE(nsnew)

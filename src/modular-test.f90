@@ -9,7 +9,7 @@ program test
 
    ngridstart = 3
    nfinal = 60
-!   mode = MODE_SENSITIVITY
+   mode = MODE_SENSITIVITY
    order = 2
    fname = "rosenbrock"
    call adaptive_ssck_analytical(frosenbrock, grosenbrock, get_range(fname, d), 2, optimize=1)
