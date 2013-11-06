@@ -2,7 +2,8 @@ f-kriging
 =============================
 
 This is a fortran code to perform the Cokriging method, Kriging method, for a predetermined
-grid or for a grid constructed via adaptive sequential sampling. 
+grid or for a grid constructed via adaptive sequential sampling. I am also currently working 
+on coupling it with an optimization scheme. 
  
 Installation Prerequesites
 -----------------------------
@@ -18,3 +19,9 @@ plus the following modules folders :
 * `/usr/lib/lapack95_modules/`
 * `/usr/lib/fortarrange_header/`
 
+Current Goals
+------------------------------
+* Investigate optimization of objective functions with this indirect cokriging solver. 
+* Provide an easy interface to the code
+* Turn this whole thing into a library
+* Document it
