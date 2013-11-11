@@ -20,7 +20,7 @@ module surrogate_model
       xtnew = transpose(xnew)
    
       call fast_kriging_function(ynew, xnew, x, theta, beta, rinvymfb, &
-      sigma2, order, d, ns, nsnew=1) 
+      sigma2, order, d, ns, nsnew=1)
       kriging_function = ynew(1,1)
    end function
 

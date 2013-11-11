@@ -1,7 +1,8 @@
-program f
+program f 
    use analytical_functions, only: y_gradient
    use analytical_solver, only: solver
    use grid, only:vector_grid, columngrid, LHS
+   use params, only: maxcount
    use utils, only: printer, process_command_input
    implicit none
    integer :: D=2, Ns, NsNew, ngrid, Order
@@ -14,19 +15,25 @@ program f
    double precision,allocatable :: theta(:)
    double precision,allocatable :: MSE(:)
    double precision :: MeanL1
+   integer :: mode, deltans, nfinal
    character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat', dotsfile='d_dots.dat'
    character(len=20) :: func_name
    character(len=50) :: datadir
    integer :: ii
 
-   Order = 2
+   Order = 0
 
    datadir = 'data'
    ! set default values or get arguments from command line
    allocate(xmin(d))
    allocate(xmax(d))
-   call process_command_input(func_name,Ns,ngrid,xmin,xmax) 
+   ns = 5
+   call process_command_input(func_name,Ns,Ngrid,xmin,xmax,nfinal, &
+            mode,deltans, order)
+   ngrid = 50
    nsnew = ngrid ** D
+   maxcount = 200
+   
    allocate(xnew(nsnew,D))
    allocate(ynew(nsnew,1))
    allocate(ygrad(nsnew,D+1))
@@ -44,12 +51,15 @@ program f
    
    ! make initial grid
    X(1:Ns-4,:) = LHS(XMIN,XMAX,D,Ns-4);
+   if(ns==5) then
+      X(1,1:D) = (/(XMIN(1)+XMAX(1))/2.0d0 , (xmin(2) + xmax(2)) / 2.0d0/) 
+   end if
    ! Strong corners (makes prettier graphs)
    X(Ns-3,:) = (/XMIN(1),XMIN(2)/)
    X(NS-2,:) = (/XMIN(1),XMAX(2)/)
    X(NS-1,:) = (/XMAX(1),XMIN(2)/)
    X(NS,:) = (/XMAX(1),XMAX(2)/) 
-
+!
    theta = (/-1,-1/)
    call solver(xnew,ynew,theta,mse,xmin,xmax,x,y,grad,Order,D,Ns,NsNew,func_name)
    

@@ -19,7 +19,6 @@ module optimization
             endif
          end do
          
-         print*, x(imin,1:D), currentMin
          carpet_bombed_min(1,1:D) = x(imin,1:D)
          y_star(1,1) = currentMin
       end function
@@ -27,7 +26,7 @@ module optimization
       function kriging_linesearched_min(x_guess, xold, yold, theta, order, d, ns, y_star, info)
          use surrogate_model, only : kriging_function, init_kriging_constants, &
             xmin, xmax
-         use linesearch_module, only : linesearch
+         use linesearch_module, only : quasi_newton_bfgs
          use matrix, only : rescale, unscale
          integer, intent(in) :: order, d, ns
          integer, intent(out), optional :: info ! 1 if out of search domain 
@@ -51,7 +50,7 @@ module optimization
          ! the line search algorithm works with column vectors. 
          xt_guess = transpose(x_guess)
 
-         call linesearch(x_star, xt_guess, kriging_function, D, y_star(1,1))
+         call quasi_newton_bfgs(x_star, xt_guess, kriging_function, D, y_star(1,1))
 
          kriging_linesearched_min = transpose(x_star)
          call unscale(kriging_linesearched_min, D, ns=1, xmin=xmin, xmax=xmax)

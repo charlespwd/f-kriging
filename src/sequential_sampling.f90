@@ -27,7 +27,7 @@ module sequential_sampling
          use utils, only: printer, l1error
          use matrix, only: vector_range
          use optimization, only: carpet_bombed_min, kriging_linesearched_min
-         use linesearch_module, only: linesearch
+         use linesearch_module, only: quasi_newton_bfgs
 
          ! arguments
          integer, intent(in) :: D
@@ -138,7 +138,7 @@ module sequential_sampling
             x_star = carpet_bombed_min(ytrue, xnew, D , nsnew , y_star)  
 
             ! get the *true* linesearched solution via the true function
-            call linesearch(x_star_true_t, transpose(x_star), func, D, y_star_true(1, 1))
+            call quasi_newton_bfgs(x_star_true_t, transpose(x_star), func, D, y_star_true(1, 1))
             print *, "*true* min", transpose(x_star_true_t)
 
             ! get the kriging optimum solution
@@ -202,6 +202,7 @@ module sequential_sampling
                   ! guess and performing the kriging linesearch with the new
                   ! guess. 
                   x_star = carpet_bombed_min(ytrue, xnew, D , nsnew , y_star)  
+                  print*, 'carpet', x_star
                   x_star = kriging_linesearched_min(x_star, xold, yold, theta, order, d, ns, y_star, info)
                end if
                call printer(x_star, y_star, 1, 1, D, minfile, datadir, loopcount)

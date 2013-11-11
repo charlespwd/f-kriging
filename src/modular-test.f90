@@ -8,11 +8,12 @@ program test
    character(len=20) :: fname
 
    ngridstart = 3
-   nfinal = 60
-   mode = MODE_SENSITIVITY
+   nfinal = 40
+   ngridrs = 50
+!   mode = MODE_SENSITIVITY
    order = 2
    fname = "rosenbrock"
-   call adaptive_ssck_analytical(frosenbrock, grosenbrock, get_range(fname, d), 2, optimize=1)
+   call adaptive_ssck_analytical(f2, g2, get_range(fname, d), 2, optimize=1)
    
    contains 
       function func(x,D)
@@ -56,8 +57,8 @@ program test
                get_range(1:D,1) = (/-5.d0, 0.d0/)
                get_range(1:D,2) = (/5.d0, 15.d0/)
             case ("rosenbrock") 
-               get_range(1:D,1) = (/-3.d0,-15.d0/)
-               get_range(1:D,2) = (/3.d0,15.d0/)
+               get_range(1:D,1) = (/-6.d0,-15.d0/)
+               get_range(1:D,2) = (/6.d0,15.d0/)
             case default
                get_range(:,1) = 0.d0
                get_range(:,2) = 1.d0

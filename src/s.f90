@@ -25,9 +25,22 @@ program sprogram
    double precision :: maxerror
    real :: start, finish
    character(len=20) :: rsfile='d_rs.dat', truefile='d_true.dat', dotsfile='d_dots.dat'
+   character(len=20) :: cL1ErrorFile='./data/c_l1err.dat', cLinfErrorFile='./data/c_linferr.dat'
    character(len=20) :: func_name, errfile
    character(len=50) :: datadir
-   integer :: ii
+   integer :: ii, cl1, clinf
+   logical :: exists
+
+   cl1 = 70
+   clinf = 71
+   inquire(file=adjustl(cl1errorfile), exist=exists)
+   if (exists) then
+      open(cl1,file=adjustl(cl1errorfile), status="old", position="append", action="write")
+      open(clinf,file=adjustl(clinferrorfile), status="old", position="append", action="write")
+   else
+      open(cl1,file=adjustl(cl1errorfile), status="new")
+      open(clinf,file=adjustl(clinferrorfile), status="new")
+   end if
 
    errfile='./data/e.dat'
    deltans=4
@@ -122,6 +135,9 @@ program sprogram
          l1error(ytrue,ynew,nsnew) / maxerror, finish-start
 
    enddo
+
+   write(cl1, *) ngrid, l1error(ytrue,ynew,nsnew) / nsnew, nsnew
+   write(clinf, *) ngrid, maxval(abs(ytrue-ynew)), nsnew 
 
    close(67)
    open(unit=67,file='loopcount.dat',status='replace')
