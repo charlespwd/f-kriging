@@ -1,5 +1,6 @@
 f-kriging
 =============================
+### NOT MAINTAINED. OLD CODE. I'M NOT PROUD OF THIS.
 
 This is a fortran code to perform the Cokriging method, Kriging method, for a predetermined
 grid or for a grid constructed via adaptive sequential sampling. I am also currently working 
