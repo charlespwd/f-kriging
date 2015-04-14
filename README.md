@@ -19,10 +19,3 @@ The makefile is setup for ubuntu with the libraries in the normal path
 plus the following modules folders : 
 * `/usr/lib/lapack95_modules/`
 * `/usr/lib/fortarrange_header/`
-
-Current Goals
-------------------------------
-* Investigate optimization of objective functions with this indirect cokriging solver. 
-* Provide an easy interface to the code
-* Turn this whole thing into a library
-* Document it
